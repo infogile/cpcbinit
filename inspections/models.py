@@ -3,11 +3,24 @@ from django.contrib.admin.decorators import action
 from django.db import models
 from django.db.models.base import Model
 from django.db.models.fields.related import OneToOneField
-from django.contrib.auth.models import User
 from django.db.models.lookups import In
+from django.contrib.auth.hashers import make_password, check_password
+import uuid
 
 # Create your models here.
-    
+
+class User(models.Model):
+    username = models.CharField(max_length=50,unique=True)
+    password = models.CharField(max_length=50)
+    token = models.CharField(max_length=50,unique=True)
+
+    def __str__(self):
+        return self.username    
+
+    def save(self,*args, **kwargs):
+        self.password = make_password(self.password)
+        self.token = uuid.uuid4()
+        super().save(*args, **kwargs)
 
 class Basin(models.Model):
     name = models.CharField(max_length=20)
