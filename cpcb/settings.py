@@ -26,10 +26,7 @@ SECRET_KEY = 'django-insecure-!^j%g64n&6(s*di$l43poy$mp0=wrjh080my1i%^2pw#7=e^@1
 DEBUG = True
 
 ALLOWED_HOSTS = ['*','admin.gangagpis.in','143.110.247.165']
-STATICFILES_DIRS = [
-    '/project/src/static',
-    '/usr/local/lib/python3.6/site-packages/django/contrib/admin/static',
-]
+
 
 # Application definition
 
@@ -78,18 +75,19 @@ WSGI_APPLICATION = 'cpcb.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 DATABASES = {
-    'default': {
+    'sql': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(PROJECT_DIR, 'yourdatabasename.db'),
     },
-    # 'postgres': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': 'cpcb_new',
-    #     'USER':'postgres',
-    #     'PASSWORD':'cpcb',
-    #     'HOST':'localhost',
-    #     'PORT':'5432',
-    # }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'cpcb',
+        'USER':'cpcb',
+        'PASSWORD':'cCTz2AzHfwbNJ5qv',
+        'HOST':'db-postgresql-blr1-02927-do-user-8223558-0.b.db.ondigitalocean.com',
+        'PORT':'25060',
+        'sslmode':'require',
+    }
 }
 
 
