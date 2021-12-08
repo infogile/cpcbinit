@@ -26,7 +26,10 @@ SECRET_KEY = 'django-insecure-!^j%g64n&6(s*di$l43poy$mp0=wrjh080my1i%^2pw#7=e^@1
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+STATICFILES_DIRS = [
+    '/project/src/static',
+    '/usr/local/lib/python3.6/site-packages/django/contrib/admin/static',
+]
 
 # Application definition
 
