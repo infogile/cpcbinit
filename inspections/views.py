@@ -139,43 +139,43 @@ class myinspectionView(APIView):
                 'message':'No relevant data found.'
             }, status=403)
         for inspection in institute_inspections:
-            temp = {}
-            temp['success'] = 'true'
-            temp["_id"] = inspection.id
-            temp["factory"] = {
-                    "location": {
-                        "coordinates": []
-                    },
-                    "_id": inspection.id,
-                    "name": ", ".join([str(inspection.factory.name), str(inspection.factory.region), str(inspection.factory.district), str(inspection.factory.state)]),
-                    "sector": {
-                        "_id": inspection.factory.sector.id,
-                        "name": inspection.factory.sector.name
-                    },
-                    "unitcode": inspection.factory.unitcode,
-                    "state": {
-                        "_id": inspection.factory.state.id,
-                        "name": inspection.factory.state.name
-                    },
-                    "district": {
-                        "_id": inspection.factory.district.id,
-                        "name": inspection.factory.district.name
-                    },
-                    "region": inspection.factory.region,
-                    "basin": {
-                        "_id": inspection.factory.basin.id,
-                        "name": inspection.factory.basin.name
-                    }
-            }
-            try:
-                response.append(temp)
-            except Exception as error:
-                return Response({
-                    'status':'fail',
-                    'message':'Bad Data Encountered',
-                    'error' : str(error)
-                }, status=403)
-
+            if inspection.status == 0:
+                temp = {}
+                temp['success'] = 'true'
+                temp["_id"] = inspection.id
+                temp["factory"] = {
+                        "location": {
+                            "coordinates": []
+                        },
+                        "_id": inspection.id,
+                        "name": ", ".join([str(inspection.factory.name), str(inspection.factory.region), str(inspection.factory.district), str(inspection.factory.state)]),
+                        "sector": {
+                            "_id": inspection.factory.sector.id,
+                            "name": inspection.factory.sector.name
+                        },
+                        "unitcode": inspection.factory.unitcode,
+                        "state": {
+                            "_id": inspection.factory.state.id,
+                            "name": inspection.factory.state.name
+                        },
+                        "district": {
+                            "_id": inspection.factory.district.id,
+                            "name": inspection.factory.district.name
+                        },
+                        "region": inspection.factory.region,
+                        "basin": {
+                            "_id": inspection.factory.basin.id,
+                            "name": inspection.factory.basin.name
+                        }
+                }
+                try:
+                    response.append(temp)
+                except Exception as error:
+                    return Response({
+                        'status':'fail',
+                        'message':'No relevant data found.'
+                    }, status=403)
+            
         return Response(response,status=200)
 
 
@@ -266,30 +266,18 @@ class myfieldReportView(APIView):
             inspection_status.total_inspected += 1
             inspection.status = 1
             inspection_status.save()
-            inspection =  inspection.save()
-            print(inspection)
+            inspection.save()
             inspection_2 = Inspection.objects.get(id=inspection_id)
             print(inspection_2,"inspection 2 yoooooooooooooo")
         except Exception as error:
             return Response({
                 'status':'fail',
-                'message':'Updation Error : Error while updating Inspection',
-                'error' : str(error)
-            }, status=403)
-        
-        # set the attendance
-        try:
-            set_attendance = Attendance(lat = float(_coordinates[0]), long = float(_coordinates[1]), inspection = inspection)
-            set_attendance.save()
-        except Exception as error:
-            return Response({
-                'status':'fail',
-                'message':'Updation Error : Error while updating Attendance',
+                'message':'Updation Error : Error while saving Inspection Instance',
                 'error' : str(error)
             }, status=403)
 
         try:
-            fieldReport = Field_report(
+            fieldReport = Field_report.objects.create(
                 uos = _fieldReport["uos"],
                 uosdetail = _fieldReport["uosdetail"],
                 etpos = _fieldReport["etpos"],
@@ -323,18 +311,19 @@ class myfieldReportView(APIView):
                 specificobservations = _fieldReport["specificobservations"],
                 inspection = inspection_2
             )
-            fieldReport.save()
         except Exception as error:
             return Response({
                 'status':'fail',
-                'message':'Creation error : Error while creating FieldReport instance',
-                'error':str(error)
+                'message':'Object Creation Error : Field Report Instance could not be created',
+                'error' : str(error)
             }, status=403)
+
+        # fieldReport.save()
 
         try:
             image = request.data['images'] #array of images
             print(inspection_2,"aaaaaaaaaaaaaaaaaaaaaaaaaa")
-            field_report = Field_report.objects.get(inspection=inspection_2)
+            field_report = Field_report.objects.filter(inspection=inspection_2).first()
             print('field report',field_report)
         except Exception as error:
             return Response({
@@ -342,12 +331,19 @@ class myfieldReportView(APIView):
                 'message':'Database Error : Error occured while fetching.',
                 'error' : str(error)
             }, status=403)
-
         if(field_report == None):
             pass
         else:
-            img_field = Field_report_images(image = image,field_report = field_report)
-            img_field.save()
+            try:
+                for img in image:
+                    img_field = Field_report_images(image = img, field_report = field_report)
+                    img_field.save()
+            except Exception as error:
+                return Response({
+                'status':'fail',
+                'message':'Image Upload Error : Failed to upload image(s).',
+                'error' : str(error)
+            }, status=403)
             
         response = {
             'payload':{
