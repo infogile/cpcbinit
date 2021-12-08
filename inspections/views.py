@@ -39,6 +39,7 @@ class mystatusView(APIView):
         response = {}
         # print("GET under mystatus")
         tok = request.headers['Authorization']
+        print(tok)
         if tok == None:
             return Response({
                 'status':'fail',
@@ -49,17 +50,22 @@ class mystatusView(APIView):
             u = User.objects.get(token = tok)
             institute = Institute.objects.get(user = u)
             institute_inspections = Inspection.objects.get(assigned_to = institute)
-            inspection_status = my_status.objects.get(institute =institute)
+            inspection_status = my_status.objects.filter(institute =institute).first()
+            if(inspection_status == None):
+                inspection_status = my_status(institute = institute)
+                inspection_status.save()
             total_assigned = inspection_status.total_assigned
             total_inspected = inspection_status.total_inspected
             total_closed = inspection_status.total_factory_closed
             bypass = inspection_status.bypass
         except Exception as error:
+            print(error)
             return Response({
                 'status':'fail',
                 'message':'Database Error : Error while fetching data.',
                 'error' : str(error)
             }, status=403)
+            
 
         # for inspection in institute_inspections:
         #     if inspection.status == 0:
@@ -326,6 +332,7 @@ class myfieldReportView(APIView):
             field_report = Field_report.objects.filter(inspection=inspection_2).first()
             print('field report',field_report)
         except Exception as error:
+            print(error)
             return Response({
                 'status':'fail',
                 'message':'Database Error : Error occured while fetching.',
@@ -335,10 +342,16 @@ class myfieldReportView(APIView):
             pass
         else:
             try:
-                for img in image:
-                    img_field = Field_report_images(image = img, field_report = field_report)
+                # for img in image:
+                if(type(image) == list):
+                    for img in image:    
+                        img_field = Field_report_images(image = img, field_report = field_report)
+                        img_field.save()
+                else:
+                    img_field = Field_report_images(image = image, field_report = field_report)
                     img_field.save()
             except Exception as error:
+                print(error)
                 return Response({
                 'status':'fail',
                 'message':'Image Upload Error : Failed to upload image(s).',
