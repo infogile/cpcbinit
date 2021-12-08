@@ -2,8 +2,11 @@ from django.contrib import admin
 from .models import *
 # Register your models here.
 
+class InlineStatus(admin.TabularInline):
+    model = my_status
 class InlineInstitue(admin.TabularInline):
     model = Institute
+    inlines = [InlineStatus]
     # readonly_fields = ('user','institue','')
     # can_delete = False
 
@@ -11,6 +14,7 @@ class InlineInstitue(admin.TabularInline):
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'token')
     inlines = [InlineInstitue]
+
 
 admin.site.register(User, UserAdmin)
 
@@ -32,3 +36,4 @@ admin.site.register(Action)
 admin.site.register(Action_report)
 admin.site.register(Action_report_files)
 admin.site.register(Inspection_report_data)
+admin.site.register(my_status)

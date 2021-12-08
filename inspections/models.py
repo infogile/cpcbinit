@@ -13,7 +13,6 @@ from django.utils.translation import gettext_lazy as _
 def upload_to(instance,filename):
     id = uuid.uuid4()
     return 'posts/{id}.jpeg'.format(id=id)
-
 class User(models.Model):
     username = models.CharField(max_length=255,unique=True)
     password = models.CharField(max_length=255)
@@ -27,6 +26,8 @@ class User(models.Model):
         self.token = uuid.uuid4()
         super().save(*args, **kwargs)
 
+
+
 class Basin(models.Model):
     name = models.CharField(max_length=255)
     def __str__(self):
@@ -39,10 +40,10 @@ class State(models.Model):
         return(self.name)
 
 class Institute(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     institute = models.CharField(max_length=100)
     poc = models.CharField(max_length=40)
-    state = models.OneToOneField(State, on_delete=models.CASCADE)
+    state = models.ForeignKey(State, on_delete=models.CASCADE)
     def __str__(self):
         return(self.institute)
 
@@ -94,6 +95,11 @@ class Inspection(models.Model):
     def __str__(self):
         return(self.factory.name)
 
+    # def save(self, *args, **kwargs):
+    #     status = my_status.objects.get(institute = self.assigned_to)
+    #     status.total_assigned +=1
+    #     status.save()
+    #     super(Inspection,self).save(*args, **kwargs)
 
 
 class Attendance(models.Model):
@@ -205,6 +211,14 @@ class Inspection_report_data(models.Model):
         return(str(self.inspection))
 
 
+class my_status(models.Model):
+    total_assigned = models.IntegerField(default=0)
+    total_inspected = models.IntegerField(default=0)
+    total_factory_closed = models.IntegerField(default=0)
+    bypass = models.IntegerField(default=0)
+    institute = models.ForeignKey(Institute, on_delete=models.CASCADE,default=1)
 
+    def __str__(self):
+        return self.institute.institute
 
 

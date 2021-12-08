@@ -79,14 +79,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(PROJECT_DIR, 'yourdatabasename.db'),
     },
-    'postgres': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'cpcb_new',
-        'USER':'postgres',
-        'PASSWORD':'cpcb',
-        'HOST':'localhost',
-        'PORT':'5432',
-    }
+    # 'postgres': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': 'cpcb_new',
+    #     'USER':'postgres',
+    #     'PASSWORD':'cpcb',
+    #     'HOST':'localhost',
+    #     'PORT':'5432',
+    # }
 }
 
 

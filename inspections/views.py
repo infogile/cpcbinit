@@ -29,22 +29,24 @@ class mystatusView(APIView):
     def get(self, request):
         response = {}
         print("GET under mystatus")
-        tok = request.data['token']
+        tok = request.headers['Authorization']
         u = User.objects.get(token = tok)
         institute = Institute.objects.get(user = u)
-        institute_inspections = Inspection.objects.filter(assigned_to = institute)
+        institute_inspections = Inspection.objects.get(assigned_to = institute)
+        inspection_status = my_status.objects.get(institute =institute)
    
-        total_assigned = 0
-        total_inspected = 0
-        total_closed = 0
+        total_assigned = inspection_status.total_assigned
+        total_inspected = inspection_status.total_inspected
+        total_closed = inspection_status.total_factory_closed
+        bypass = inspection_status.bypass
 
-        for inspection in institute_inspections:
-            if inspection.status == 0:
-                total_assigned += 1
-            elif inspection.status == 1:
-                total_inspected += 1
-            if inspection.factory.status == 4:
-                total_closed += 1
+        # for inspection in institute_inspections:
+        #     if inspection.status == 0:
+        #         total_assigned += 1
+        #     elif inspection.status == 1:
+        #         total_inspected += 1
+        #     if inspection.factory.status == 4:
+        #         total_closed += 1
 
         # totalAssigned : status 0
         # totalInspected : status 1
@@ -57,7 +59,7 @@ class mystatusView(APIView):
                 'totalAssigned': total_assigned,
                 'totalInspected': total_inspected,
                 'totalClosed': total_closed,
-                'totalBypass':'4'
+                'totalBypass':bypass
             }
         }
 
@@ -95,7 +97,7 @@ class myinspectionView(APIView):
         print(request.headers)
         print(request.data)
         
-        tok = request.data['token']
+        tok = request.headers['Authorization']
         u = User.objects.get(token = tok)
         institute = Institute.objects.get(user = u)
         institute_inspections = Inspection.objects.filter(assigned_to = institute)
@@ -139,9 +141,12 @@ class myinspectionView(APIView):
 class myfieldReportView(APIView):
     def post(self, request, *args, **kwargs):
         response = {}
+        tok = request.headers['Authorization']
+        u = User.objects.get(token = tok)
+        institute = Institute.objects.get(user = u)
         print("POST")
         print(request.headers)
-        print('bhaiya maze',request.data['body'])
+        print('bhaiya maze',request.data)
         print('bhaiya maze',type(request.data['body']))
         print('bhaiya maze',request.data['body'])
 
@@ -154,40 +159,51 @@ class myfieldReportView(APIView):
         _type = _entrylocation["type"]
         _coordinates = _entrylocation["coordinates"]
         _fieldReport = dat["fieldReport"]
-        _images = _fieldReport["images"]    # maybe not required
-        _poc = _fieldReport["poc"]
-        _uos = _fieldReport["uos"]
-        _uosdetail = _fieldReport["uosdetail"]
-        _etpos = _fieldReport["etpos"]
-        _etposdetail = _fieldReport["etposdetail"]
-        _cpc = _fieldReport["cpc"]
-        _ipc = _fieldReport["ipc"]
-        _ppopd = _fieldReport["ppopd"]
-        _fwwpdbofm = _fieldReport["fwwpdbofm"]
-        _ocs = _fieldReport["ocs"]
-        _sonfc = _fieldReport["sonfc"]
-        _mrr = _fieldReport["mrr"]
-        _mrrname = _fieldReport["mrrname"]
-        _csac = _fieldReport["csac"]
-        _wc = _fieldReport["wc"]
-        _hc = _fieldReport["hc"]
-        _cc = _fieldReport["cc"]
-        _sfwc = _fieldReport["sfwc"]
-        _sfwcdetail = _fieldReport["sfwcdetail"]
-        _fib = _fieldReport["fib"]
-        _fibdetail = _fieldReport["fibdetail"]
-        _fietpinlet = _fieldReport["fietpinlet"]
-        _fietpinletdetail = _fieldReport["fietpinletdetail"]
-        _fietpoutlent  = _fieldReport["fietpoutlent"]
-        _fietpoutlentdetail = _fieldReport["fietpoutlentdetail"]
-        _fmetpoutletcdf = _fieldReport["fmetpoutletcdf"]
-        _fmetpoutletpdf = _fieldReport["fmetpoutletpdf"]
-        _os = _fieldReport["os"]
-        _osdetail = _fieldReport["osdetail"]
-        _semfetp = _fieldReport["semfetp"]
-        _semfer = _fieldReport["semfer"]
-        _specificobservations = _fieldReport["specificobservations"]
+        # _images = _fieldReport["images"]    # maybe not required
+        # _poc = _fieldReport["poc"]
+        # _uos = _fieldReport["uos"]
+        # _uosdetail = _fieldReport["uosdetail"]
+        # _etpos = _fieldReport["etpos"]
+        # _etposdetail = _fieldReport["etposdetail"]
+        # _cpc = _fieldReport["cpc"]
+        # _ipc = _fieldReport["ipc"]
+        # _ppopd = _fieldReport["ppopd"]
+        # _fwwpdbofm = _fieldReport["fwwpdbofm"]
+        # _ocs = _fieldReport["ocs"]
+        # _sonfc = _fieldReport["sonfc"]
+        # _mrr = _fieldReport["mrr"]
+        # _mrrname = _fieldReport["mrrname"]
+        # _csac = _fieldReport["csac"]
+        # _wc = _fieldReport["wc"]
+        # _hc = _fieldReport["hc"]
+        # _cc = _fieldReport["cc"]
+        # _sfwc = _fieldReport["sfwc"]
+        # _sfwcdetail = _fieldReport["sfwcdetail"]
+        # _fib = _fieldReport["fib"]
+        # _fibdetail = _fieldReport["fibdetail"]
+        # _fietpinlet = _fieldReport["fietpinlet"]
+        # _fietpinletdetail = _fieldReport["fietpinletdetail"]
+        # _fietpoutlent  = _fieldReport["fietpoutlent"]
+        # _fietpoutlentdetail = _fieldReport["fietpoutlentdetail"]
+        # _fmetpoutletcdf = _fieldReport["fmetpoutletcdf"]
+        # _fmetpoutletpdf = _fieldReport["fmetpoutletpdf"]
+        # _os = _fieldReport["os"]
+        # _osdetail = _fieldReport["osdetail"]
+        # _semfetp = _fieldReport["semfetp"]
+        # _semfer = _fieldReport["semfer"]
+        # _specificobservations = _fieldReport["specificobservations"]
         
+        inspection_id = dat['id']
+        inspection = Inspection.objects.get(id=inspection_id)
+        inspection_status = my_status.objects.get(institute = institute)
+        inspection_status.total_inspected += 1
+        inspection.status = 1
+        inspection_status.save()
+        inspection =  inspection.save()
+        print(inspection)
+        inspection_2 = Inspection.objects.get(id=inspection_id)
+        print(inspection_2,"inspection 2 yoooooooooooooo")
+
         fieldReport = Field_report(
             uos = _fieldReport["uos"],
             uosdetail = _fieldReport["uosdetail"],
@@ -219,21 +235,17 @@ class myfieldReportView(APIView):
             osdetail = _fieldReport["osdetail"],
             semfetp = _fieldReport["semfetp"],
             semfer = _fieldReport["semfer"],
-            specificobservations = _fieldReport["specificobservations"]
+            specificobservations = _fieldReport["specificobservations"],
+            inspection = inspection_2
         )
+
         fieldReport.save()
 
         image = request.data['images'] #array of images
-        inspection_id = dat['id']
-        inspection = Inspection.objects.get(pk=inspection_id)
-        inspection.status += 1
-        inspection.save()
-        field_report = Field_report.objects.get(pk=inspection_id)
-        field_report = Field_report(
-            inspection=inspection,
-        )
-        field_report.save()
-        if(inspection == None):
+        print(inspection_2,"aaaaaaaaaaaaaaaaaaaaaaaaaa")
+        field_report = Field_report.objects.get(inspection=inspection_2)
+        print('field report',field_report)
+        if(field_report == None):
             pass
         else:
             img_field = Field_report_images(image = image,field_report = field_report)
@@ -245,6 +257,7 @@ class myfieldReportView(APIView):
                 'success':'true',
             }
         }
+       
         return Response(response,status=200)
     def get(self, request):
         return Response("cool",status=200)
