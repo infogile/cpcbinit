@@ -7,15 +7,25 @@ from rest_framework.exceptions import AuthenticationFailed
 from .serializers import *
 import json
 import os,uuid
-# Create your views here.
-
 
 class loginView(APIView):
     def post(self,request):
         response = {}
         username = request.data['username']
         password = request.data['password']
-        user = User.objects.get(username=username)
+        if username == None or password == None:
+            return Response({
+                'status':'fail',
+                'message':'NoneType Username or Password'
+            }, status=403)
+        try:
+            user = User.objects.get(username=username)
+        except Exception as error:
+            return Response({
+                'status':'fail',
+                'message':'Bad Data Encountered',
+                'error' : str(error)
+            }, status=403)
         if(check_password(password,user.password)):
             response['token'] = user.token
             response['success'] = 'true'
@@ -23,22 +33,33 @@ class loginView(APIView):
         else:
             response['status'] = 'fail'
             return Response("Invalid username or password",status=403)
-
-
+        
 class mystatusView(APIView):
     def get(self, request):
         response = {}
-        print("GET under mystatus")
+        # print("GET under mystatus")
         tok = request.headers['Authorization']
-        u = User.objects.get(token = tok)
-        institute = Institute.objects.get(user = u)
-        institute_inspections = Inspection.objects.get(assigned_to = institute)
-        inspection_status = my_status.objects.get(institute =institute)
-   
-        total_assigned = inspection_status.total_assigned
-        total_inspected = inspection_status.total_inspected
-        total_closed = inspection_status.total_factory_closed
-        bypass = inspection_status.bypass
+        if tok == None:
+            return Response({
+                'status':'fail',
+                'message':'Authentication Failed.'
+            }, status=403)
+        
+        try:
+            u = User.objects.get(token = tok)
+            institute = Institute.objects.get(user = u)
+            institute_inspections = Inspection.objects.get(assigned_to = institute)
+            inspection_status = my_status.objects.get(institute =institute)
+            total_assigned = inspection_status.total_assigned
+            total_inspected = inspection_status.total_inspected
+            total_closed = inspection_status.total_factory_closed
+            bypass = inspection_status.bypass
+        except Exception as error:
+            return Response({
+                'status':'fail',
+                'message':'Database Error : Error while fetching data.',
+                'error' : str(error)
+            }, status=403)
 
         # for inspection in institute_inspections:
         #     if inspection.status == 0:
@@ -48,11 +69,13 @@ class mystatusView(APIView):
         #     if inspection.factory.status == 4:
         #         total_closed += 1
 
+        # STATUS CODES 
         # totalAssigned : status 0
         # totalInspected : status 1
         # web portal -> upload report => status 2
         # taken action : status 3
         # if factory closed : status 4
+        
         response = {
             'data':{
                 'success':'true',
@@ -93,16 +116,28 @@ class myinspectionView(APIView):
     def post(self, request):
         response = {}
         
-        print("POST")
-        print(request.headers)
-        print(request.data)
+        # print("POST")
+        # print(request.headers)
+        # print(request.data)
         
-        tok = request.headers['Authorization']
-        u = User.objects.get(token = tok)
-        institute = Institute.objects.get(user = u)
-        institute_inspections = Inspection.objects.filter(assigned_to = institute)
-        
+        try:
+            tok = request.headers['Authorization']
+            u = User.objects.get(token = tok)
+            institute = Institute.objects.get(user = u)
+            institute_inspections = Inspection.objects.filter(assigned_to = institute)
+        except Exception as error:
+            return Response({
+                'status':'fail',
+                'message':'Database Error : Error occured while fetching',
+                'error' : str(error)
+            }, status=403)
+
         response = []
+        if institute_inspections == None or institute_inspections == []:
+            return Response({
+                'status':'fail',
+                'message':'No relevant data found.'
+            }, status=403)
         for inspection in institute_inspections:
             temp = {}
             temp['success'] = 'true'
@@ -132,7 +167,14 @@ class myinspectionView(APIView):
                         "name": inspection.factory.basin.name
                     }
             }
-            response.append(temp)
+            try:
+                response.append(temp)
+            except Exception as error:
+                return Response({
+                    'status':'fail',
+                    'message':'Bad Data Encountered',
+                    'error' : str(error)
+                }, status=403)
 
         return Response(response,status=200)
 
@@ -141,16 +183,40 @@ class myinspectionView(APIView):
 class myfieldReportView(APIView):
     def post(self, request, *args, **kwargs):
         response = {}
+
+        
         tok = request.headers['Authorization']
-        u = User.objects.get(token = tok)
-        institute = Institute.objects.get(user = u)
+        if tok == None:
+            return Response({
+                'status':'fail',
+                'message':'NoneType Data Encountered'
+            }, status=403)
+        
+        try:
+            u = User.objects.get(token = tok)
+            institute = Institute.objects.get(user = u)
+        except Exception as error:
+            return Response({
+                'status':'fail',
+                'message':'Database error : Error occured while fetching',
+                'error' : str(error)
+            }, status=403)
+        
+        
         print("POST")
         print(request.headers)
         print('bhaiya maze',request.data)
         print('bhaiya maze',type(request.data['body']))
         print('bhaiya maze',request.data['body'])
 
-        dat = json.loads(request.data['body'])
+        try:
+            dat = json.loads(request.data['body'])
+        except Exception as error:
+            return Response({
+                'status':'fail',
+                'message':'Bad Data Encountered',
+                'error':str(error)
+            }, status=403)
         
         ######### parsing #########
         id_ = dat["id"]
@@ -193,72 +259,103 @@ class myfieldReportView(APIView):
         # _semfer = _fieldReport["semfer"]
         # _specificobservations = _fieldReport["specificobservations"]
         
-        inspection_id = dat['id']
-        inspection = Inspection.objects.get(id=inspection_id)
-        inspection_status = my_status.objects.get(institute = institute)
-        inspection_status.total_inspected += 1
-        inspection.status = 1
-        inspection_status.save()
-        inspection =  inspection.save()
-        print(inspection)
-        inspection_2 = Inspection.objects.get(id=inspection_id)
-        print(inspection_2,"inspection 2 yoooooooooooooo")
+        try:
+            inspection_id = dat['id']
+            inspection = Inspection.objects.get(id=inspection_id)
+            inspection_status = my_status.objects.get(institute = institute)
+            inspection_status.total_inspected += 1
+            inspection.status = 1
+            inspection_status.save()
+            inspection =  inspection.save()
+            print(inspection)
+            inspection_2 = Inspection.objects.get(id=inspection_id)
+            print(inspection_2,"inspection 2 yoooooooooooooo")
+        except Exception as error:
+            return Response({
+                'status':'fail',
+                'message':'Updation Error : Error while updating Inspection',
+                'error' : str(error)
+            }, status=403)
+        
+        # set the attendance
+        try:
+            set_attendance = Attendance(lat = float(_coordinates[0]), long = float(_coordinates[1]), inspection = inspection)
+            set_attendance.save()
+        except Exception as error:
+            return Response({
+                'status':'fail',
+                'message':'Updation Error : Error while updating Attendance',
+                'error' : str(error)
+            }, status=403)
 
-        fieldReport = Field_report(
-            uos = _fieldReport["uos"],
-            uosdetail = _fieldReport["uosdetail"],
-            etpos = _fieldReport["etpos"],
-            etposdetail = _fieldReport["etposdetail"],
-            cpc = _fieldReport["cpc"],
-            ipc = _fieldReport["ipc"],
-            ppopd = _fieldReport["ppopd"],
-            fwwpdbofm = _fieldReport["fwwpdbofm"],
-            ocs = _fieldReport["ocs"],
-            sonfc = _fieldReport["sonfc"],
-            mrr = _fieldReport["mrr"],
-            mrrname = _fieldReport["mrrname"],
-            csac = _fieldReport["csac"],
-            wc = _fieldReport["wc"],
-            hc = _fieldReport["hc"],
-            cc = _fieldReport["cc"],
-            sfwc = _fieldReport["sfwc"],
-            sfwcdetail = _fieldReport["sfwcdetail"],
-            fib = _fieldReport["fib"],
-            fibdetail = _fieldReport["fibdetail"],
-            fietpinlet = _fieldReport["fietpinlet"],
-            fietpinletdetail = _fieldReport["fietpinletdetail"],
-            fietpoutlent  = _fieldReport["fietpoutlent"],
-            fietpoutlentdetail = _fieldReport["fietpoutlentdetail"],
-            fmetpoutletcdf = _fieldReport["fmetpoutletcdf"],
-            fmetpoutletpdf = _fieldReport["fmetpoutletpdf"],
-            os = _fieldReport["os"],
-            osdetail = _fieldReport["osdetail"],
-            semfetp = _fieldReport["semfetp"],
-            semfer = _fieldReport["semfer"],
-            specificobservations = _fieldReport["specificobservations"],
-            inspection = inspection_2
-        )
+        try:
+            fieldReport = Field_report(
+                uos = _fieldReport["uos"],
+                uosdetail = _fieldReport["uosdetail"],
+                etpos = _fieldReport["etpos"],
+                etposdetail = _fieldReport["etposdetail"],
+                cpc = _fieldReport["cpc"],
+                ipc = _fieldReport["ipc"],
+                ppopd = _fieldReport["ppopd"],
+                fwwpdbofm = _fieldReport["fwwpdbofm"],
+                ocs = _fieldReport["ocs"],
+                sonfc = _fieldReport["sonfc"],
+                mrr = _fieldReport["mrr"],
+                mrrname = _fieldReport["mrrname"],
+                csac = _fieldReport["csac"],
+                wc = _fieldReport["wc"],
+                hc = _fieldReport["hc"],
+                cc = _fieldReport["cc"],
+                sfwc = _fieldReport["sfwc"],
+                sfwcdetail = _fieldReport["sfwcdetail"],
+                fib = _fieldReport["fib"],
+                fibdetail = _fieldReport["fibdetail"],
+                fietpinlet = _fieldReport["fietpinlet"],
+                fietpinletdetail = _fieldReport["fietpinletdetail"],
+                fietpoutlent  = _fieldReport["fietpoutlent"],
+                fietpoutlentdetail = _fieldReport["fietpoutlentdetail"],
+                fmetpoutletcdf = _fieldReport["fmetpoutletcdf"],
+                fmetpoutletpdf = _fieldReport["fmetpoutletpdf"],
+                os = _fieldReport["os"],
+                osdetail = _fieldReport["osdetail"],
+                semfetp = _fieldReport["semfetp"],
+                semfer = _fieldReport["semfer"],
+                specificobservations = _fieldReport["specificobservations"],
+                inspection = inspection_2
+            )
+            fieldReport.save()
+        except Exception as error:
+            return Response({
+                'status':'fail',
+                'message':'Creation error : Error while creating FieldReport instance',
+                'error':str(error)
+            }, status=403)
 
-        fieldReport.save()
+        try:
+            image = request.data['images'] #array of images
+            print(inspection_2,"aaaaaaaaaaaaaaaaaaaaaaaaaa")
+            field_report = Field_report.objects.get(inspection=inspection_2)
+            print('field report',field_report)
+        except Exception as error:
+            return Response({
+                'status':'fail',
+                'message':'Database Error : Error occured while fetching.',
+                'error' : str(error)
+            }, status=403)
 
-        image = request.data['images'] #array of images
-        print(inspection_2,"aaaaaaaaaaaaaaaaaaaaaaaaaa")
-        field_report = Field_report.objects.get(inspection=inspection_2)
-        print('field report',field_report)
         if(field_report == None):
             pass
         else:
             img_field = Field_report_images(image = image,field_report = field_report)
             img_field.save()
-
-        
+            
         response = {
             'payload':{
                 'success':'true',
             }
         }
-       
         return Response(response,status=200)
+    
     def get(self, request):
         return Response("cool",status=200)
 
