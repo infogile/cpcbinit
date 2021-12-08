@@ -281,7 +281,17 @@ class myfieldReportView(APIView):
                 'message':'Updation Error : Error while saving Inspection Instance',
                 'error' : str(error)
             }, status=403)
-
+        try:
+            attendance_instance = Attendance(lat = float(_coordinates[0]), long = float(_coordinates[1]), inspection = inspection)
+            attendance_instance.save()
+        except Exception as error:
+            print(error)
+            return Response({
+                'status':'fail',
+                'message':'Creation Error : Error while saving Attendance Instance',
+                'error' : str(error)
+            }, status=403)
+        
         try:
             fieldReport = Field_report.objects.create(
                 uos = _fieldReport["uos"],
@@ -318,6 +328,7 @@ class myfieldReportView(APIView):
                 inspection = inspection_2
             )
         except Exception as error:
+            print(error)
             return Response({
                 'status':'fail',
                 'message':'Object Creation Error : Field Report Instance could not be created',

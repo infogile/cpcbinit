@@ -85,7 +85,15 @@ class Factories(models.Model):
     def __str__(self):
         return(self.name)
 
+class my_status(models.Model):
+    total_assigned = models.IntegerField(default=0)
+    total_inspected = models.IntegerField(default=0)
+    total_factory_closed = models.IntegerField(default=0)
+    bypass = models.IntegerField(default=0)
+    institute = models.ForeignKey(Institute, on_delete=models.CASCADE,default=1)
 
+    def __str__(self):
+        return self.institute.institute
 class Inspection(models.Model):
     status = models.IntegerField()
     factory = models.ForeignKey(Factories, on_delete=models.CASCADE)
@@ -95,11 +103,17 @@ class Inspection(models.Model):
     def __str__(self):
         return(self.factory.name)
 
-    # def save(self, *args, **kwargs):
-    #     status = my_status.objects.get(institute = self.assigned_to)
-    #     status.total_assigned +=1
-    #     status.save()
-    #     super(Inspection,self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        status = my_status.objects.get(institute = self.assigned_to)
+        if(status == None):
+            status = my_status.objects.create(institute = self.assigned_to)
+            status.total_assigned +=1
+            status.save()
+            super(Inspection,self).save(*args, **kwargs)
+        
+        status.total_assigned +=1
+        status.save()
+        super(Inspection,self).save(*args, **kwargs)
 
 
 class Attendance(models.Model):
@@ -211,14 +225,6 @@ class Inspection_report_data(models.Model):
         return(str(self.inspection))
 
 
-class my_status(models.Model):
-    total_assigned = models.IntegerField(default=0)
-    total_inspected = models.IntegerField(default=0)
-    total_factory_closed = models.IntegerField(default=0)
-    bypass = models.IntegerField(default=0)
-    institute = models.ForeignKey(Institute, on_delete=models.CASCADE,default=1)
 
-    def __str__(self):
-        return self.institute.institute
 
 

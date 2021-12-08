@@ -1,22 +1,20 @@
 from django.contrib import admin
+from django.db.models import fields
 from .models import *
 # Register your models here.
-
-class InlineStatus(admin.TabularInline):
-    model = my_status
 class InlineInstitue(admin.TabularInline):
     model = Institute
-    inlines = [InlineStatus]
-    # readonly_fields = ('user','institue','')
-    # can_delete = False
+    max_num = 1
 
-
+admin.site.site_header = "CPCB Administration"
+admin.site.site_title = "CPCB Admin"
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'token')
     inlines = [InlineInstitue]
 
 
 admin.site.register(User, UserAdmin)
+
 
 admin.site.register(Basin)
 admin.site.register(State)
