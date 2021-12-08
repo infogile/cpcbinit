@@ -87,97 +87,50 @@ class myinspectionView(APIView):
         response['unitcode'] = '1'
 
         return Response(response,status=200)
+    
     def post(self, request):
         response = {}
+        
         print("POST")
         print(request.headers)
         print(request.data)
-        response = [{
-            'success':'true',
-                "_id": "1",
-                "factory": {
+        
+        tok = request.data['token']
+        u = User.objects.get(token = tok)
+        institute = Institute.objects.get(user = u)
+        institute_inspections = Inspection.objects.filter(assigned_to = institute)
+        
+        response = []
+        for inspection in institute_inspections:
+            temp = {}
+            temp['success'] = 'true'
+            temp["_id"] = inspection.id
+            temp["factory"] = {
                     "location": {
                         "coordinates": []
                     },
-                    "_id": "1",
-                    "name": "N.I.F. PVT LTD (Namastey India Food), VILL-BRAHAMPUR SHIVRAJPUR, KANPUR",
+                    "_id": inspection.id,
+                    "name": ", ".join([str(inspection.factory.name), str(inspection.factory.region), str(inspection.factory.district), str(inspection.factory.state)]),
                     "sector": {
-                        "_id": "1",
-                        "name": "food & beverages"
+                        "_id": inspection.factory.sector.id,
+                        "name": inspection.factory.sector.name
                     },
-                    "unitcode": 357,
+                    "unitcode": inspection.factory.unitcode,
                     "state": {
-                        "_id": "1",
-                        "name": "Uttar Pradesh"
+                        "_id": inspection.factory.state.id,
+                        "name": inspection.factory.state.name
                     },
                     "district": {
-                        "_id": "1",
-                        "name": "Kanpur Nagar"
+                        "_id": inspection.factory.district.id,
+                        "name": inspection.factory.district.name
                     },
-                    "region": "KANPUR NAGAR",
+                    "region": inspection.factory.region,
                     "basin": {
-                        "_id": "1",
-                        "name": "ganga"
+                        "_id": inspection.factory.basin.id,
+                        "name": inspection.factory.basin.name
                     }
-                },
-        },{
-            'success':'true',
-                "_id": "1",
-                "factory": {
-                    "location": {
-                        "coordinates": []
-                    },
-                    "_id": "1",
-                    "name": "N.I.F. PVT LTD (Namastey India Food), VILL-BRAHAMPUR SHIVRAJPUR, KANPUR",
-                    "sector": {
-                        "_id": "1",
-                        "name": "textile"
-                    },
-                    "unitcode": 357,
-                    "state": {
-                        "_id": "1",
-                        "name": "Uttar Pradesh"
-                    },
-                    "district": {
-                        "_id": "1",
-                        "name": "Kanpur Nagar"
-                    },
-                    "region": "KANPUR NAGAR",
-                    "basin": {
-                        "_id": "1",
-                        "name": "ganga"
-                    }
-                }
-        },{
-            'success':'true',
-            "_id": "1",
-                "factory": {
-                    "location": {
-                        "coordinates": []
-                    },
-                    "_id": "1",
-                    "name": "Complete",
-                    "sector": {
-                        "_id": "1",
-                        "name": "Nothing left"
-                    },
-                    "unitcode": 357,
-                    "state": {
-                        "_id": "1",
-                        "name": "Uttar Pradesh"
-                    },
-                    "district": {
-                        "_id": "1",
-                        "name": "Kanpur Nagar"
-                    },
-                    "region": "KANPUR NAGAR",
-                    "basin": {
-                        "_id": "1",
-                        "name": "ganga"
-                    }
-                }
-        }
-        ]
+            }
+            response.append(temp)
 
         return Response(response,status=200)
 
@@ -193,6 +146,82 @@ class myfieldReportView(APIView):
         print('bhaiya maze',request.data['body'])
 
         dat = json.loads(request.data['body'])
+        
+        ######### parsing #########
+        id_ = dat["id"]
+        _attendance = dat["attendance"]
+        _entrylocation = _attendance["entrylocation"]
+        _type = _entrylocation["type"]
+        _coordinates = _entrylocation["coordinates"]
+        _fieldReport = dat["fieldReport"]
+        _images = _fieldReport["images"]    # maybe not required
+        _poc = _fieldReport["poc"]
+        _uos = _fieldReport["uos"]
+        _uosdetail = _fieldReport["uosdetail"]
+        _etpos = _fieldReport["etpos"]
+        _etposdetail = _fieldReport["etposdetail"]
+        _cpc = _fieldReport["cpc"]
+        _ipc = _fieldReport["ipc"]
+        _ppopd = _fieldReport["ppopd"]
+        _fwwpdbofm = _fieldReport["fwwpdbofm"]
+        _ocs = _fieldReport["ocs"]
+        _sonfc = _fieldReport["sonfc"]
+        _mrr = _fieldReport["mrr"]
+        _mrrname = _fieldReport["mrrname"]
+        _csac = _fieldReport["csac"]
+        _wc = _fieldReport["wc"]
+        _hc = _fieldReport["hc"]
+        _cc = _fieldReport["cc"]
+        _sfwc = _fieldReport["sfwc"]
+        _sfwcdetail = _fieldReport["sfwcdetail"]
+        _fib = _fieldReport["fib"]
+        _fibdetail = _fieldReport["fibdetail"]
+        _fietpinlet = _fieldReport["fietpinlet"]
+        _fietpinletdetail = _fieldReport["fietpinletdetail"]
+        _fietpoutlent  = _fieldReport["fietpoutlent"]
+        _fietpoutlentdetail = _fieldReport["fietpoutlentdetail"]
+        _fmetpoutletcdf = _fieldReport["fmetpoutletcdf"]
+        _fmetpoutletpdf = _fieldReport["fmetpoutletpdf"]
+        _os = _fieldReport["os"]
+        _osdetail = _fieldReport["osdetail"]
+        _semfetp = _fieldReport["semfetp"]
+        _semfer = _fieldReport["semfer"]
+        _specificobservations = _fieldReport["specificobservations"]
+        
+        fieldReport = Field_report(
+            uos = _fieldReport["uos"],
+            uosdetail = _fieldReport["uosdetail"],
+            etpos = _fieldReport["etpos"],
+            etposdetail = _fieldReport["etposdetail"],
+            cpc = _fieldReport["cpc"],
+            ipc = _fieldReport["ipc"],
+            ppopd = _fieldReport["ppopd"],
+            fwwpdbofm = _fieldReport["fwwpdbofm"],
+            ocs = _fieldReport["ocs"],
+            sonfc = _fieldReport["sonfc"],
+            mrr = _fieldReport["mrr"],
+            mrrname = _fieldReport["mrrname"],
+            csac = _fieldReport["csac"],
+            wc = _fieldReport["wc"],
+            hc = _fieldReport["hc"],
+            cc = _fieldReport["cc"],
+            sfwc = _fieldReport["sfwc"],
+            sfwcdetail = _fieldReport["sfwcdetail"],
+            fib = _fieldReport["fib"],
+            fibdetail = _fieldReport["fibdetail"],
+            fietpinlet = _fieldReport["fietpinlet"],
+            fietpinletdetail = _fieldReport["fietpinletdetail"],
+            fietpoutlent  = _fieldReport["fietpoutlent"],
+            fietpoutlentdetail = _fieldReport["fietpoutlentdetail"],
+            fmetpoutletcdf = _fieldReport["fmetpoutletcdf"],
+            fmetpoutletpdf = _fieldReport["fmetpoutletpdf"],
+            os = _fieldReport["os"],
+            osdetail = _fieldReport["osdetail"],
+            semfetp = _fieldReport["semfetp"],
+            semfer = _fieldReport["semfer"],
+            specificobservations = _fieldReport["specificobservations"]
+        )
+        fieldReport.save()
 
         image = request.data['images'] #array of images
         inspection_id = dat['id']

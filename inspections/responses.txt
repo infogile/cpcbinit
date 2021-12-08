@@ -1,0 +1,86 @@
+-- myinspection view
+
+# response = [{
+    #         "factory": {
+    #             "location": {
+    #                 "coordinates": []
+    #             },
+    #             "_id": "1",
+    #             "name": "N.I.F. PVT LTD (Namastey India Food), VILL-BRAHAMPUR SHIVRAJPUR, KANPUR",
+    #             "sector": {
+    #                 "_id": "1",
+    #                 "name": "food & beverages"
+    #             },
+    #             "unitcode": 357,
+    #             "state": {
+    #                 "_id": "1",
+    #                 "name": "Uttar Pradesh"
+    #             },
+    #             "district": {
+    #                 "_id": "1",
+    #                 "name": "Kanpur Nagar"
+    #             },
+    #             "region": "KANPUR NAGAR",
+    #             "basin": {
+    #                 "_id": "1",
+    #                 "name": "ganga"
+    #             }
+    #         },
+    # },{
+    #     'success':'true',
+    #         "_id": "1",
+    #         "factory": {
+    #             "location": {
+    #                 "coordinates": []
+    #             },
+    #             "_id": "1",
+    #             "name": "N.I.F. PVT LTD (Namastey India Food), VILL-BRAHAMPUR SHIVRAJPUR, KANPUR",
+    #             "sector": {
+    #                 "_id": "1",
+    #                 "name": "textile"
+    #             },
+    #             "unitcode": 357,
+    #             "state": {
+    #                 "_id": "1",
+    #                 "name": "Uttar Pradesh"
+    #             },
+    #             "district": {
+    #                 "_id": "1",
+    #                 "name": "Kanpur Nagar"
+    #             },
+    #             "region": "KANPUR NAGAR",
+    #             "basin": {
+    #                 "_id": "1",
+    #                 "name": "ganga"
+    #             }
+    #         }
+    # },{
+    #     'success':'true',
+    #     "_id": "1",
+    #         "factory": {
+    #             "location": {
+    #                 "coordinates": []
+    #             },
+    #             "_id": "1",
+    #             "name": "Complete",
+    #             "sector": {
+    #                 "_id": "1",
+    #                 "name": "Nothing left"
+    #             },
+    #             "unitcode": 357,
+    #             "state": {
+    #                 "_id": "1",
+    #                 "name": "Uttar Pradesh"
+    #             },
+    #             "district": {
+    #                 "_id": "1",
+    #                 "name": "Kanpur Nagar"
+    #             },
+    #             "region": "KANPUR NAGAR",
+    #             "basin": {
+    #                 "_id": "1",
+    #                 "name": "ganga"
+    #             }
+    #         }
+    # }
+    # ]

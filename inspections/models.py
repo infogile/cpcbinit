@@ -15,9 +15,9 @@ def upload_to(instance,filename):
     return 'posts/{id}.jpeg'.format(id=id)
 
 class User(models.Model):
-    username = models.CharField(max_length=50,unique=True)
-    password = models.CharField(max_length=50)
-    token = models.CharField(max_length=50,unique=True)
+    username = models.CharField(max_length=255,unique=True)
+    password = models.CharField(max_length=255)
+    token = models.CharField(max_length=255,unique=True,default="None")
 
     def __str__(self):
         return self.username    
@@ -28,7 +28,7 @@ class User(models.Model):
         super().save(*args, **kwargs)
 
 class Basin(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=255)
     def __str__(self):
         return(self.name)
 
@@ -61,13 +61,13 @@ class Headoffice(models.Model):
 
 class District(models.Model):
     short_code = models.CharField(max_length=2)
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=255)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     def __str__(self):
         return(self.name)
 
 class Sector(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=255)
     def __str__(self):
         return(self.name)
 
@@ -105,38 +105,39 @@ class Attendance(models.Model):
 
 
 class Field_report(models.Model):
-    uos = models.CharField(max_length=20)
-    uosdetail = models.CharField(max_length=20)
-    etpos = models.CharField(max_length=20)
-    etposdetail = models.CharField(max_length=20)
-    cpc = models.CharField(max_length=20)
-    ipc = models.CharField(max_length=20)
-    ppopd = models.CharField(max_length=20)
-    fwwpdbofm = models.CharField(max_length=20)
-    ocs = models.CharField(max_length=20)
-    sonfc = models.CharField(max_length=20)
-    mrr = models.CharField(max_length=20)
+    uos = models.CharField(max_length=255)
+    uosdetail = models.CharField(max_length=255)
+    etpos = models.CharField(max_length=255)
+    etposdetail = models.CharField(max_length=255)
+    cpc = models.CharField(max_length=255)
+    ipc = models.CharField(max_length=255)
+    ppopd = models.CharField(max_length=255)
+    fwwpdbofm = models.CharField(max_length=255)
+    ocs = models.CharField(max_length=255)
+    sonfc = models.CharField(max_length=255)
+    mrr = models.CharField(max_length=255)
     mrrname = models.CharField(max_length=40)
-    csac = models.CharField(max_length=20)
-    wc = models.CharField(max_length=20)
-    hc = models.CharField(max_length=20)
-    cc = models.CharField(max_length=20)
-    sfwc = models.CharField(max_length=20)
-    sfwcdetail = models.CharField(max_length=40)
-    fib = models.CharField(max_length=20)
-    fibdetail = models.CharField(max_length=20)
-    fietpinlet = models.CharField(max_length=20)
-    fietpinletdetail = models.CharField(max_length=20)
-    fietpoutlent = models.CharField(max_length=20)
-    fietpoutlentdetail = models.CharField(max_length=20)
-    fmetpoutletcdf = models.CharField(max_length=20)
-    fmetpoutletpdf = models.CharField(max_length=20)
-    os = models.CharField(max_length=20)
-    osdetail = models.CharField(max_length=20)
-    semfetp = models.CharField(max_length=20)
-    semfer = models.CharField(max_length=20)
-    specificobservations = models.CharField(max_length=40)
+    csac = models.CharField(max_length=255)
+    wc = models.CharField(max_length=255)
+    hc = models.CharField(max_length=255)
+    cc = models.CharField(max_length=255)
+    sfwc = models.CharField(max_length=255)
+    sfwcdetail = models.CharField(max_length=255)
+    fib = models.CharField(max_length=255)
+    fibdetail = models.CharField(max_length=255)
+    fietpinlet = models.CharField(max_length=255)
+    fietpinletdetail = models.CharField(max_length=255)
+    fietpoutlent = models.CharField(max_length=255)
+    fietpoutlentdetail = models.CharField(max_length=255)
+    fmetpoutletcdf = models.CharField(max_length=255)
+    fmetpoutletpdf = models.CharField(max_length=255)
+    os = models.CharField(max_length=255)
+    osdetail = models.CharField(max_length=255)
+    semfetp = models.CharField(max_length=255)
+    semfer = models.CharField(max_length=255)
+    specificobservations = models.TextField()
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
+    
     def __str__(self):
         return(str(self.inspection))
 
