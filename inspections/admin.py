@@ -2,8 +2,15 @@ from django.contrib import admin
 from .models import *
 # Register your models here.
 
+class InlineInstitue(admin.TabularInline):
+    model = Institute
+    # readonly_fields = ('user','institue','')
+    # can_delete = False
+
+
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'token')
+    inlines = [InlineInstitue]
 
 admin.site.register(User, UserAdmin)
 

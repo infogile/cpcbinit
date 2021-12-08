@@ -6,8 +6,13 @@ from django.db.models.fields.related import OneToOneField
 from django.db.models.lookups import In
 from django.contrib.auth.hashers import make_password, check_password
 import uuid
+from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
+
+def upload_to(instance,filename):
+    id = uuid.uuid4()
+    return 'posts/{id}.jpeg'.format(id=id)
 
 class User(models.Model):
     username = models.CharField(max_length=50,unique=True)
@@ -34,10 +39,10 @@ class State(models.Model):
         return(self.name)
 
 class Institute(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     institute = models.CharField(max_length=100)
     poc = models.CharField(max_length=40)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
+    state = models.OneToOneField(State, on_delete=models.CASCADE)
     def __str__(self):
         return(self.institute)
 
@@ -59,7 +64,7 @@ class District(models.Model):
     name = models.CharField(max_length=20)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     def __str__(self):
-        return(self.District)
+        return(self.name)
 
 class Sector(models.Model):
     name = models.CharField(max_length=20)
@@ -70,11 +75,12 @@ class Sector(models.Model):
 class Factories(models.Model):
     name = models.CharField(max_length=50)
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE)
-    unitcode = models.IntegerField()
+    unitcode = models.CharField(max_length=10,unique=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     district = models.ForeignKey(District, on_delete=models.CASCADE)
     region = models.CharField(max_length=30)
     basin = models.ForeignKey(Basin, on_delete=models.CASCADE)
+    status = models.IntegerField(default = 0, choices=[(0,"inspection yet to be taken"),(1,"inspection taken from app"),(2,"inspection report uploaded on web"),(3,"action taken by state authorties"),(4,"factory closed")])
     def __str__(self):
         return(self.name)
 
@@ -86,7 +92,7 @@ class Inspection(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     def __str__(self):
-        return(self.factory)
+        return(self.factory.name)
 
 
 
@@ -136,10 +142,11 @@ class Field_report(models.Model):
 
 
 class Field_report_images(models.Model):
-    image = models.ImageField()
+    image = models.ImageField(_("Image"),upload_to=upload_to,default = 'posts/default.jpg',blank = True)
     field_report = models.ForeignKey(Field_report, on_delete=models.CASCADE)
     def __str__(self):
         return(str(self.field_report))
+
 
 class Field_report_poc(models.Model):
     name = models.CharField(max_length=40)
