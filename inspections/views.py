@@ -226,6 +226,8 @@ class myfieldReportView(APIView):
         image = request.data['images'] #array of images
         inspection_id = dat['id']
         inspection = Inspection.objects.get(pk=inspection_id)
+        inspection.status += 1
+        inspection.save()
         field_report = Field_report.objects.get(pk=inspection_id)
         field_report = Field_report(
             inspection=inspection,
