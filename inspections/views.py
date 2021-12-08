@@ -104,35 +104,37 @@ class myinspectionView(APIView):
         
         response = []
         for inspection in institute_inspections:
-            temp = {}
-            temp['success'] = 'true'
-            temp["_id"] = inspection.id
-            temp["factory"] = {
-                    "location": {
-                        "coordinates": []
-                    },
-                    "_id": inspection.id,
-                    "name": ", ".join([str(inspection.factory.name), str(inspection.factory.region), str(inspection.factory.district), str(inspection.factory.state)]),
-                    "sector": {
-                        "_id": inspection.factory.sector.id,
-                        "name": inspection.factory.sector.name
-                    },
-                    "unitcode": inspection.factory.unitcode,
-                    "state": {
-                        "_id": inspection.factory.state.id,
-                        "name": inspection.factory.state.name
-                    },
-                    "district": {
-                        "_id": inspection.factory.district.id,
-                        "name": inspection.factory.district.name
-                    },
-                    "region": inspection.factory.region,
-                    "basin": {
-                        "_id": inspection.factory.basin.id,
-                        "name": inspection.factory.basin.name
-                    }
-            }
-            response.append(temp)
+            if inspection.status == 0:
+                temp = {}
+                temp['success'] = 'true'
+                temp["_id"] = inspection.id
+                temp["factory"] = {
+                        "location": {
+                            "coordinates": []
+                        },
+                        "_id": inspection.id,
+                        "name": ", ".join([str(inspection.factory.name), str(inspection.factory.region), str(inspection.factory.district), str(inspection.factory.state)]),
+                        "sector": {
+                            "_id": inspection.factory.sector.id,
+                            "name": inspection.factory.sector.name
+                        },
+                        "unitcode": inspection.factory.unitcode,
+                        "state": {
+                            "_id": inspection.factory.state.id,
+                            "name": inspection.factory.state.name
+                        },
+                        "district": {
+                            "_id": inspection.factory.district.id,
+                            "name": inspection.factory.district.name
+                        },
+                        "region": inspection.factory.region,
+                        "basin": {
+                            "_id": inspection.factory.basin.id,
+                            "name": inspection.factory.basin.name
+                        }
+                }
+                response.append(temp)
+            
 
         return Response(response,status=200)
 
@@ -199,12 +201,11 @@ class myfieldReportView(APIView):
         inspection_status.total_inspected += 1
         inspection.status = 1
         inspection_status.save()
-        inspection =  inspection.save()
-        print(inspection)
+        inspection.save()
         inspection_2 = Inspection.objects.get(id=inspection_id)
         print(inspection_2,"inspection 2 yoooooooooooooo")
 
-        fieldReport = Field_report(
+        fieldReport = Field_report.objects.create(
             uos = _fieldReport["uos"],
             uosdetail = _fieldReport["uosdetail"],
             etpos = _fieldReport["etpos"],
@@ -239,11 +240,11 @@ class myfieldReportView(APIView):
             inspection = inspection_2
         )
 
-        fieldReport.save()
+        # fieldReport.save()
 
         image = request.data['images'] #array of images
         print(inspection_2,"aaaaaaaaaaaaaaaaaaaaaaaaaa")
-        field_report = Field_report.objects.get(inspection=inspection_2)
+        field_report = Field_report.objects.filter(inspection=inspection_2).first()
         print('field report',field_report)
         if(field_report == None):
             pass
