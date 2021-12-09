@@ -49,7 +49,6 @@ class mystatusView(APIView):
         try:
             u = User.objects.get(token = tok)
             institute = Institute.objects.get(user = u)
-            institute_inspections = Inspection.objects.get(assigned_to = institute)
             inspection_status = my_status.objects.filter(institute =institute).first()
             if(inspection_status == None):
                 inspection_status = my_status(institute = institute)
@@ -267,7 +266,7 @@ class myfieldReportView(APIView):
         
         try:
             inspection_id = dat['id']
-            inspection = Inspection.objects.get(id=inspection_id)
+            inspection = Inspection.objects.filter(id=inspection_id)
             inspection_status = my_status.objects.get(institute = institute)
             inspection_status.total_inspected += 1
             inspection.status = 1
@@ -354,6 +353,7 @@ class myfieldReportView(APIView):
         else:
             try:
                 # for img in image:
+                print(image)
                 if(type(image) == list):
                     for img in image:    
                         img_field = Field_report_images(image = img, field_report = field_report)
