@@ -20,7 +20,12 @@ class User(models.Model):
     def __str__(self):
         return self.username    
 
-    def save(self,*args, **kwargs):
+    def save(self,*args, **kwargs):    #password hashed everytime save is called
+        if not User.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = User.objects.last().id +1 
         self.password = make_password(self.password)
         self.token = uuid.uuid4()
         super().save(*args, **kwargs)
@@ -31,12 +36,26 @@ class Basin(models.Model):
     name = models.CharField(max_length=255)
     def __str__(self):
         return(self.name)
+    def save(self,*args, **kwargs):
+        if not Basin.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Basin.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class State(models.Model):
     short_name = models.CharField(max_length=2)
     name = models.CharField(max_length=30)
     def __str__(self):
         return(self.name)
+    def save(self,*args, **kwargs):
+        if not State.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = State.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class Institute(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -45,18 +64,39 @@ class Institute(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     def __str__(self):
         return(self.institute)
+    def save(self,*args, **kwargs):
+        if not Institute.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Institute.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class SPCB(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     def __str__(self):
         return(self.state)
+    def save(self,*args, **kwargs):
+        if not SPCB.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = SPCB.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class Headoffice(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=30)
     def __str__(self):
         return(self.name)
+    def save(self,*args, **kwargs):
+        if not Headoffice.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Headoffice.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 
 class District(models.Model):
@@ -65,11 +105,25 @@ class District(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     def __str__(self):
         return(self.name)
+    def save(self,*args, **kwargs):
+        if not District.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = District.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class Sector(models.Model):
     name = models.CharField(max_length=255)
     def __str__(self):
         return(self.name)
+    def save(self,*args, **kwargs):
+        if not Sector.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Sector.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 
 class Factories(models.Model):
@@ -83,6 +137,13 @@ class Factories(models.Model):
     status = models.IntegerField(default = 0, choices=[(0,"inspection yet to be taken"),(1,"inspection taken from app"),(2,"inspection report uploaded on web"),(3,"action taken by state authorties"),(4,"factory closed")])
     def __str__(self):
         return(self.name)
+    def save(self,*args, **kwargs):
+        if not Factories.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Factories.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class my_status(models.Model):
     total_assigned = models.IntegerField(default=0)
@@ -93,6 +154,13 @@ class my_status(models.Model):
 
     def __str__(self):
         return self.institute.institute
+    def save(self,*args, **kwargs):
+        if not my_status.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = my_status.objects.last().id +1 
+        super().save(*args, **kwargs)
 class Inspection(models.Model):
     status = models.IntegerField()
     factory = models.ForeignKey(Factories, on_delete=models.CASCADE)
@@ -101,9 +169,14 @@ class Inspection(models.Model):
     updated_at = models.DateTimeField()
     def __str__(self):
         return(self.factory.name)
-
     
     def save(self, *args, **kwargs):
+        if not Inspection.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Inspection.objects.last().id +1 
+
         if not self.pk:
             status = my_status.objects.filter(institute = self.assigned_to).first()
             if(status == None):
@@ -125,6 +198,13 @@ class Attendance(models.Model):
     updatedon = models.DateTimeField(auto_now=True)
     def __str__(self):
         return(str(self.inspection))
+    def save(self,*args, **kwargs):
+        if not Attendance.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Attendance.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 
 class Field_report(models.Model):
@@ -167,6 +247,13 @@ class Field_report(models.Model):
         return(str(self.inspection))
     def assigned(self):
         return(str(self.inspection.assigned_to))
+    def save(self,*args, **kwargs):
+        if not Field_report.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Field_report.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 def upload_to(instance,filename):
     id = uuid.uuid4()
@@ -177,6 +264,13 @@ class Field_report_images(models.Model):
     field_report = models.ForeignKey(Field_report, on_delete=models.CASCADE)
     def __str__(self):
         return(str(self.field_report))
+    def save(self,*args, **kwargs):
+        if not Field_report_images.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Field_report_images.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 
 class Field_report_poc(models.Model):
@@ -186,12 +280,26 @@ class Field_report_poc(models.Model):
     field_report = models.ForeignKey(Field_report, on_delete=models.CASCADE)
     def __str__(self):
         return(self.name)
+    def save(self,*args, **kwargs):
+        if not Field_report_poc.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Field_report_poc.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class Inspection_report(models.Model):
     file = models.FileField()
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
     def __str__(self):
         return(str(self.inspection))
+    def save(self,*args, **kwargs):
+        if not Inspection_report.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Inspection_report.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class Action(models.Model):
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
@@ -199,6 +307,13 @@ class Action(models.Model):
     created_at = models.DateTimeField()
     def __str__(self):
         return(str(self.inspection))
+    def save(self,*args, **kwargs):
+        if not Action.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Action.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class Action_report(models.Model):
     compliance_status = models.IntegerField()
@@ -210,12 +325,26 @@ class Action_report(models.Model):
     action = models.ForeignKey(Action, on_delete=models.CASCADE)
     def __str__(self):
         return(str(self.action))
+    def save(self,*args, **kwargs):
+        if not Action_report.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Action_report.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class Action_report_files(models.Model):
     file = models.FileField()
     action_report = models.ForeignKey(Action_report, on_delete=models.CASCADE)
     def __str__(self):
         return(str(self.action_report))
+    def save(self,*args, **kwargs):
+        if not Action_report_files.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Action_report_files.objects.last().id +1 
+        super().save(*args, **kwargs)
 
 class Inspection_report_data(models.Model):
     ZLDnorms = models.CharField(max_length=20)
@@ -233,6 +362,13 @@ class Inspection_report_data(models.Model):
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
     def __str__(self):
         return(str(self.inspection))
+    def save(self,*args, **kwargs):
+        if not Inspection_report_data.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = Inspection_report_data.objects.last().id +1 
+        super().save(*args, **kwargs)
     
 
 

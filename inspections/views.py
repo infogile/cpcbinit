@@ -144,8 +144,7 @@ class myinspectionView(APIView):
         response = []
         if institute_inspections == None or institute_inspections == []:
             return Response({
-                'status':'fail',
-                'message':'No relevant data found.'
+                'success':'true',
             }, status=403)
         for inspection in institute_inspections:
             if inspection.status == 0:
