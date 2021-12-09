@@ -131,6 +131,7 @@ class myinspectionView(APIView):
             institute = Institute.objects.get(user = u)
             institute_inspections = Inspection.objects.filter(assigned_to = institute)
         except Exception as error:
+            print(error)
             return Response({
                 'status':'fail',
                 'message':'Database Error : Error occured while fetching',
@@ -176,6 +177,7 @@ class myinspectionView(APIView):
                 try:
                     response.append(temp)
                 except Exception as error:
+                    print(error)
                     return Response({
                         'status':'fail',
                         'message':'No relevant data found.'
@@ -201,6 +203,7 @@ class myfieldReportView(APIView):
             u = User.objects.get(token = tok)
             institute = Institute.objects.get(user = u)
         except Exception as error:
+            print(error)
             return Response({
                 'status':'fail',
                 'message':'Database error : Error occured while fetching',
@@ -217,6 +220,7 @@ class myfieldReportView(APIView):
         try:
             dat = json.loads(request.data['body'])
         except Exception as error:
+            print(error)
             return Response({
                 'status':'fail',
                 'message':'Bad Data Encountered',
@@ -266,7 +270,7 @@ class myfieldReportView(APIView):
         
         try:
             inspection_id = dat['id']
-            inspection = Inspection.objects.filter(id=inspection_id)
+            inspection = Inspection.objects.filter(id=inspection_id).first()
             inspection_status = my_status.objects.get(institute = institute)
             inspection_status.total_inspected += 1
             inspection.status = 1
@@ -275,14 +279,14 @@ class myfieldReportView(APIView):
             inspection_2 = Inspection.objects.get(id=inspection_id)
             print(inspection_2,"inspection 2 yoooooooooooooo")
         except Exception as error:
+            print(error)
             return Response({
                 'status':'fail',
                 'message':'Updation Error : Error while saving Inspection Instance',
                 'error' : str(error)
             }, status=403)
         try:
-            attendance_instance = Attendance(lat = float(_coordinates[0]), long = float(_coordinates[1]), inspection = inspection)
-            attendance_instance.save()
+            attendance_instance = Attendance.objects.create(lat = float(_coordinates[0]), long = float(_coordinates[1]), inspection = inspection_2)
         except Exception as error:
             print(error)
             return Response({
@@ -337,7 +341,9 @@ class myfieldReportView(APIView):
         # fieldReport.save()
 
         try:
+            print(request.data['images'])
             image = request.data['images'] #array of images
+            print(type(image))
             print(inspection_2,"aaaaaaaaaaaaaaaaaaaaaaaaaa")
             field_report = Field_report.objects.filter(inspection=inspection_2).first()
             print('field report',field_report)
