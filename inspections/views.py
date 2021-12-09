@@ -345,10 +345,10 @@ class myfieldReportView(APIView):
         # fieldReport.save()
 
         try:
-            datae = json.loads(request.data)
-            print(datae['images'])
+            datae = request.data
+            image = datae.getlist('images')
             print(request.data['images'])
-            image = request.data['images'] #array of images
+            # image = request.data['images'] #array of images
             print(type(image))
             print(inspection_2,"aaaaaaaaaaaaaaaaaaaaaaaaaa")
             field_report = Field_report.objects.filter(inspection=inspection_2).first()
