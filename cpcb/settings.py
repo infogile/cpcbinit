@@ -81,9 +81,9 @@ DATABASES = {
     },
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'cpcb',
-        'USER':'cpcb',
-        'PASSWORD':'cCTz2AzHfwbNJ5qv',
+        'NAME': 'cpcb-test',
+        'USER':'cpcb-test',
+        'PASSWORD':'o9Vn6VOmhbTPvwJl',
         'HOST':'db-postgresql-blr1-02927-do-user-8223558-0.b.db.ondigitalocean.com',
         'PORT':'25060',
         'sslmode':'require',

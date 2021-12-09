@@ -44,13 +44,14 @@ class InlineMystatus(admin.TabularInline):
     model = my_status
     max_num = 1
 
-class InlineInspection(admin.TabularInline):
-    model = Inspection
-    can_delete = True
+# class InlineInspection(admin.TabularInline):
+#     model = Inspection
+#     can_delete = True
+#     list_per_page = 5
 class IntituteView(admin.ModelAdmin):
     list_display = ('institute','user','poc','state')
     list_filter = ('state',)
-    inlines = [InlineMystatus,InlineInspection]
+    inlines = [InlineMystatus]
 
 admin.site.register(User, UserAdmin)
 
