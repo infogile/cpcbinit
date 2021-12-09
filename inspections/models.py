@@ -103,7 +103,7 @@ class Inspection(models.Model):
     def __str__(self):
         return(self.factory.name)
 
-    def save(self, *args, **kwargs):
+    def create(self, *args, **kwargs):
         status = my_status.objects.get(institute = self.assigned_to)
         if(status == None):
             status = my_status.objects.create(institute = self.assigned_to)
