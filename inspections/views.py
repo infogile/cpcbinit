@@ -286,7 +286,7 @@ class myfieldReportView(APIView):
                 'error' : str(error)
             }, status=403)
         try:
-            attendance_instance = Attendance.objects.create(lat = float(_coordinates[0]), long = float(_coordinates[1]), inspection = inspection_2)
+            attendance_instance = Attendance.objects.create(lat = _coordinates[0], long = _coordinates[1], inspection = inspection_2)
         except Exception as error:
             print(error)
             return Response({
