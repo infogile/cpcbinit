@@ -6,6 +6,9 @@ class InlineInstitue(admin.TabularInline):
     model = Institute
     max_num = 1
 
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('lat','long','inspection','createdon','updatedon')
+
 admin.site.site_header = "CPCB Administration"
 admin.site.site_title = "CPCB Admin"
 class UserAdmin(admin.ModelAdmin):
@@ -25,7 +28,7 @@ admin.site.register(District)
 admin.site.register(Sector)
 admin.site.register(Factories)
 admin.site.register(Inspection)
-admin.site.register(Attendance)
+admin.site.register(Attendance,AttendanceAdmin)
 admin.site.register(Field_report)
 admin.site.register(Field_report_images)
 admin.site.register(Field_report_poc)
