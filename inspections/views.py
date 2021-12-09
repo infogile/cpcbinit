@@ -14,6 +14,7 @@ class loginView(APIView):
         username = request.data['username']
         password = request.data['password']
         if username == None or password == None:
+            print("username or password is null")
             return Response({
                 'status':'fail',
                 'message':'NoneType Username or Password'
@@ -21,6 +22,7 @@ class loginView(APIView):
         try:
             user = User.objects.get(username=username)
         except Exception as error:
+            print(error)
             return Response({
                 'status':'fail',
                 'message':'Bad Data Encountered',
@@ -31,6 +33,7 @@ class loginView(APIView):
             response['success'] = 'true'
             return Response(response,status=200)
         else:
+            print("no password match")
             response['status'] = 'fail'
             return Response("Invalid username or password",status=403)
         
