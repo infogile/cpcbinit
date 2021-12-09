@@ -286,6 +286,10 @@ class myfieldReportView(APIView):
                 'error' : str(error)
             }, status=403)
         try:
+            if(_coordinates[0] == 'loading' or _coordinates[1] == 'loading'):
+                _coordinates[0] = 0
+                _coordinates[1] = 0
+
             attendance_instance = Attendance.objects.create(lat = _coordinates[0], long = _coordinates[1], inspection = inspection_2)
         except Exception as error:
             print(error)

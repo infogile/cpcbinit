@@ -7,6 +7,7 @@ from django.db.models.lookups import In
 from django.contrib.auth.hashers import make_password, check_password
 import uuid
 from django.utils.translation import gettext_lazy as _
+import datetime
 
 # Create your models here.
 
@@ -120,6 +121,8 @@ class Attendance(models.Model):
     lat = models.FloatField()
     long = models.FloatField()
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
+    createdon = models.DateTimeField(auto_now=True)
+    updatedon = models.DateTimeField(auto_now=True)
     def __str__(self):
         return(str(self.inspection))
 
@@ -157,6 +160,8 @@ class Field_report(models.Model):
     semfer = models.CharField(max_length=255)
     specificobservations = models.TextField()
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
+    createdon = models.DateTimeField(auto_now=True)
+    updatedon = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return(str(self.inspection))
