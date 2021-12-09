@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import environ
+
+env = environ.Env()
+
+environ.Env.read_env()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,7 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!^j%g64n&6(s*di$l43poy$mp0=wrjh080my1i%^2pw#7=e^@1'
+#SECRET_KEY = 'django-insecure-!^j%g64n&6(s*di$l43poy$mp0=wrjh080my1i%^2pw#7=e^@1'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -81,11 +87,11 @@ DATABASES = {
     },
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'cpcb-test',
-        'USER':'cpcb-test',
-        'PASSWORD':'o9Vn6VOmhbTPvwJl',
-        'HOST':'private-db-postgresql-blr1-02927-do-user-8223558-0.b.db.ondigitalocean.com',
-        'PORT':'25060',
+        'NAME': env('DATABASE_NAME'),
+        'USER':env('DATABASE_USER'),
+        'PASSWORD':env('DATABASE_PASS'),
+        'HOST':env('DATABASE_HOST'),
+        'PORT':env('DATABASE_PORT'),
         'sslmode':'require',
     }
 }
@@ -115,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Kolkata'
+TIME_ZONE = env('TIME_ZONE')
 
 USE_I18N = True
 
