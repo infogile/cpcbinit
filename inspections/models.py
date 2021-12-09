@@ -104,16 +104,18 @@ class Inspection(models.Model):
     def __str__(self):
         return(self.factory.name)
 
-    def create(self, *args, **kwargs):
-        status = my_status.objects.get(institute = self.assigned_to)
-        if(status == None):
-            status = my_status.objects.create(institute = self.assigned_to)
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            status = my_status.objects.filter(institute = self.assigned_to).first()
+            if(status == None):
+                status = my_status.objects.create(institute = self.assigned_to)
+                status.total_assigned +=1
+                status.save()
+                super(Inspection,self).save(*args, **kwargs)
+            
             status.total_assigned +=1
             status.save()
-            super(Inspection,self).save(*args, **kwargs)
-        
-        status.total_assigned +=1
-        status.save()
         super(Inspection,self).save(*args, **kwargs)
 
 
@@ -165,6 +167,8 @@ class Field_report(models.Model):
     
     def __str__(self):
         return(str(self.inspection))
+    def assigned(self):
+        return(str(self.inspection.assigned_to))
 
 
 class Field_report_images(models.Model):
@@ -228,6 +232,7 @@ class Inspection_report_data(models.Model):
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
     def __str__(self):
         return(str(self.inspection))
+    
 
 
 
