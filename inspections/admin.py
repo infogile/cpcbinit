@@ -15,6 +15,8 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'token')
     inlines = [InlineInstitue]
 
+class InspectionAdmin(admin.ModelAdmin):
+    list_display = ('assigned_to','factory')
 
 admin.site.register(User, UserAdmin)
 
@@ -27,7 +29,7 @@ admin.site.register(Headoffice)
 admin.site.register(District)
 admin.site.register(Sector)
 admin.site.register(Factories)
-admin.site.register(Inspection)
+admin.site.register(Inspection,InspectionAdmin)
 admin.site.register(Attendance,AttendanceAdmin)
 admin.site.register(Field_report)
 admin.site.register(Field_report_images)
