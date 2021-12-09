@@ -75,7 +75,7 @@ class Sector(models.Model):
 
 
 class Factories(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=255)
     sector = models.ForeignKey(Sector, on_delete=models.CASCADE)
     unitcode = models.CharField(max_length=10,unique=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE)

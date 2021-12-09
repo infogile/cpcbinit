@@ -345,6 +345,8 @@ class myfieldReportView(APIView):
         # fieldReport.save()
 
         try:
+            datae = json.loads(request.data)
+            print(datae['images'])
             print(request.data['images'])
             image = request.data['images'] #array of images
             print(type(image))
