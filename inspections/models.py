@@ -11,9 +11,7 @@ import datetime
 
 # Create your models here.
 
-def upload_to(instance,filename):
-    id = uuid.uuid4()
-    return 'posts/{id}.jpeg'.format(id=id)
+
 class User(models.Model):
     username = models.CharField(max_length=255,unique=True)
     password = models.CharField(max_length=255)
@@ -170,7 +168,10 @@ class Field_report(models.Model):
     def assigned(self):
         return(str(self.inspection.assigned_to))
 
-
+def upload_to(instance,filename):
+    id = uuid.uuid4()
+    user = instance.field_report.inspection
+    return 'posts/inspection_{user}/{id}.jpeg'.format(id=id,user=user)
 class Field_report_images(models.Model):
     image = models.ImageField(_("Image"),upload_to=upload_to,default = 'posts/default.jpg',blank = True)
     field_report = models.ForeignKey(Field_report, on_delete=models.CASCADE)

@@ -368,11 +368,9 @@ class myfieldReportView(APIView):
                 print(image)
                 if(type(image) == list):
                     for img in image:    
-                        img_field = Field_report_images(image = img, field_report = field_report)
-                        img_field.save()
+                        img_field = Field_report_images.objects.create(image = img, field_report = field_report)
                 else:
-                    img_field = Field_report_images(image = image, field_report = field_report)
-                    img_field.save()
+                    img_field = Field_report_images.objects.create(image = image, field_report = field_report)
             except Exception as error:
                 print(error)
                 return Response({

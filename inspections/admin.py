@@ -32,7 +32,7 @@ class FieldImage(admin.TabularInline):
     model = Field_report_images
     can_delete = False
 class FieldReportAdmin(admin.ModelAdmin):
-    list_display = ('inspection',Field_report.assigned,)
+    list_display = ('id','inspection',Field_report.assigned,)
     list_filter = ('inspection',)
     inlines = [FieldImage]
 
