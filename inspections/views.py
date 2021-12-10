@@ -302,7 +302,7 @@ class myfieldReportView(APIView):
             }, status=403)
         
         try:
-            ks = ["uos" ,"uosdetail" ,"etpos"
+            ks = ["uos" ,"uosdetail" ,"etpos",
             "etposdetail" ,"cpc" ,
             "ipc" ,"ppopd", "fwwpdbofm" ,
             "ocs", "sonfc" ,"mrr" ,
