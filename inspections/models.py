@@ -46,7 +46,7 @@ class Basin(models.Model):
 
 class State(models.Model):
     short_name = models.CharField(max_length=2)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=255)
     def __str__(self):
         return(self.name)
     def save(self,*args, **kwargs):
@@ -59,8 +59,8 @@ class State(models.Model):
 
 class Institute(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    institute = models.CharField(max_length=100)
-    poc = models.CharField(max_length=40)
+    institute = models.CharField(max_length=255)
+    poc = models.CharField(max_length=255)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     def __str__(self):
         return(self.institute)
@@ -87,7 +87,7 @@ class SPCB(models.Model):
 
 class Headoffice(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=255)
     def __str__(self):
         return(self.name)
     def save(self,*args, **kwargs):
@@ -132,7 +132,7 @@ class Factories(models.Model):
     unitcode = models.CharField(max_length=10,unique=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     district = models.ForeignKey(District, on_delete=models.CASCADE)
-    region = models.CharField(max_length=30)
+    region = models.CharField(max_length=255)
     basin = models.ForeignKey(Basin, on_delete=models.CASCADE)
     status = models.IntegerField(default = 0, choices=[(0,"inspection yet to be taken"),(1,"inspection taken from app"),(2,"inspection report uploaded on web"),(3,"action taken by state authorties"),(4,"factory closed")])
     def __str__(self):
@@ -219,7 +219,7 @@ class Field_report(models.Model):
     ocs = models.CharField(max_length=255)
     sonfc = models.CharField(max_length=255)
     mrr = models.CharField(max_length=255)
-    mrrname = models.CharField(max_length=40)
+    mrrname = models.CharField(max_length=255)
     csac = models.CharField(max_length=255)
     wc = models.CharField(max_length=255)
     hc = models.CharField(max_length=255)
@@ -274,7 +274,7 @@ class Field_report_images(models.Model):
 
 
 class Field_report_poc(models.Model):
-    name = models.CharField(max_length=40)
+    name = models.CharField(max_length=255)
     email = models.CharField(max_length=255)
     number = models.CharField(max_length=20)
     field_report = models.ForeignKey(Field_report, on_delete=models.CASCADE)
