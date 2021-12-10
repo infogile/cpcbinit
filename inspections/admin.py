@@ -22,7 +22,7 @@ class InspectionAdmin(admin.ModelAdmin):
 
 class FactoryAdmin(admin.ModelAdmin):
     list_display = ('name','state','district','status')
-    list_filter = ('state','district','status',)
+    list_filter = ('state','status','sector',)
 
 class FieldReportImage(admin.ModelAdmin):
     list_display = ('field_report','image')
