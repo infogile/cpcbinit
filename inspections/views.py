@@ -317,6 +317,9 @@ class myfieldReportView(APIView):
             ]
             for default_keys in ks:
                 _fieldReport.setdefault(default_keys,"N/A")
+            
+            print(type(_fieldReport))
+            print(_fieldReport,'fieldreport after key additionaaaaaaaaaaaaaa')
 
             fieldReport = Field_report.objects.create(
                 uos = _fieldReport["uos"],
@@ -353,7 +356,7 @@ class myfieldReportView(APIView):
                 inspection = inspection_2
             )
         except Exception as error:
-            print(error)
+            print(error,error.__class__)
             return Response({
                 'status':'fail',
                 'message':'Object Creation Error : Field Report Instance could not be created',
