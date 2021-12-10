@@ -238,7 +238,7 @@ class myfieldReportView(APIView):
         _fieldReport = dat["fieldReport"]
         # _images = _fieldReport["images"]    # maybe not required
         try:
-            _poc = _fieldReport["poc"]
+            _poc = json.loads(_fieldReport["poc"])
         except Exception as error:
             print(error)
         _fieldReportPOC = {}
