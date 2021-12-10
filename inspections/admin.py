@@ -12,6 +12,7 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 admin.site.site_header = "CPCB Administration"
 admin.site.site_title = "CPCB Admin"
+admin.site.index_title = "Welcome to CPCB Admin powered by CloverBuddies"
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'token')
     inlines = [InlineInstitue]
@@ -44,6 +45,9 @@ class InlineMystatus(admin.TabularInline):
     model = my_status
     max_num = 1
 
+class FieldReportPoc(admin.ModelAdmin):
+    list_display = ('name','field_report')
+
 # class InlineInspection(admin.TabularInline):
 #     model = Inspection
 #     can_delete = True
@@ -68,7 +72,7 @@ admin.site.register(Inspection,InspectionAdmin)
 admin.site.register(Attendance,AttendanceAdmin)
 admin.site.register(Field_report,FieldReportAdmin)
 admin.site.register(Field_report_images,FieldReportImage)
-admin.site.register(Field_report_poc)
+admin.site.register(Field_report_poc,FieldReportPoc)
 admin.site.register(Inspection_report)
 admin.site.register(Action)
 admin.site.register(Action_report)
