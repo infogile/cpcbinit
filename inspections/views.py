@@ -239,6 +239,7 @@ class myfieldReportView(APIView):
         # _images = _fieldReport["images"]    # maybe not required
         try:
             _poc = _fieldReport["poc"][0]
+            print(_poc)
         except Exception as error:
             print(error)
         _fieldReportPOC = {}
@@ -255,11 +256,11 @@ class myfieldReportView(APIView):
         except Exception as error:
             print(error)
         try:    
-            _fieldReportPOC["number"] = _poc["number"]
+            _fieldReportPOC["number"] = _poc["email"] #code sahi hai frontend mai email mai no aa raha hai
         except Exception as error:
             print(error)
         try:
-            _fieldReportPOC["email"] = _poc["email"]
+            _fieldReportPOC["email"] = _poc["number"] #code sahi hai frontend mai number mai email aa raha hai
         except Exception as error:
             print(error)
         
