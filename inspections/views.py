@@ -302,6 +302,10 @@ class myfieldReportView(APIView):
             }, status=403)
         
         try:
+            ks = ["uos" ,"uosdetail" ,"etposdetail" ,"cpc" ,"ipc" ,"ppopd", "fwwpdbofm" ,"ocs", "sonfc" ,"mrr" ,"mrrname" ,"csac" ,"wc" ,"hc" ,"cc" ,"sfwc" ,"sfwcdetail" ,"fib" ,"fibdetail" ,"fietpinlet" ,"fietpinletdetail" ,"fietpoutlent", "fietpoutlentdetail" ,"fmetpoutletcdf" ,"fmetpoutletpdf" ,"os", "osdetail" ,"semfetp" ,"semfer" ,"specificobservations"]
+            for default_keys in ks:
+                _fieldReport.setdefault(default_keys,"N/A")
+
             fieldReport = Field_report.objects.create(
                 uos = _fieldReport["uos"],
                 uosdetail = _fieldReport["uosdetail"],
