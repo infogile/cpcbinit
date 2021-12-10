@@ -275,8 +275,8 @@ class Field_report_images(models.Model):
 
 class Field_report_poc(models.Model):
     name = models.CharField(max_length=40)
-    email = models.EmailField()
-    number = models.IntegerField()
+    email = models.CharField(max_length=255)
+    number = models.CharField(max_length=20)
     field_report = models.ForeignKey(Field_report, on_delete=models.CASCADE)
     def __str__(self):
         return(self.name)
