@@ -244,7 +244,12 @@ class myfieldReportView(APIView):
         _fieldReportPOC = {}
         ks_poc = ["name","number","email"]
         for def_key in ks_poc:
-            _fieldReportPOC.setdefault(def_key,"NA")
+            if(def_key == "number"):
+                _fieldReportPOC.setdefault(def_key,0)
+            elif(def_key == "email"):
+                _fieldReportPOC.setdefault(def_key,"null@null.null")
+            else:
+                _fieldReportPOC.setdefault(def_key,"NA")
         try:
             _fieldReportPOC["name"] = _poc["name"]
         except Exception as error:
