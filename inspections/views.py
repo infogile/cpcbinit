@@ -272,12 +272,12 @@ class myfieldReportView(APIView):
         
         try:
             inspection_id = dat['id']
-            inspection = Inspection.objects.filter(id=inspection_id).first()
-            inspection_status = my_status.objects.get(institute = institute)
-            inspection_status.total_inspected += 1
-            inspection.status = 1
-            inspection_status.save()
-            inspection.save()
+            # inspection = Inspection.objects.filter(id=inspection_id).first()
+            # inspection_status = my_status.objects.get(institute = institute)
+            # inspection_status.total_inspected += 1
+            # inspection.status = 1
+            # inspection_status.save()
+            # inspection.save()
             inspection_2 = Inspection.objects.get(id=inspection_id)
             print(inspection_2,"inspection 2 yoooooooooooooo")
         except Exception as error:
@@ -380,7 +380,13 @@ class myfieldReportView(APIView):
                 'message':'Image Upload Error : Failed to upload image(s).',
                 'error' : str(error)
             }, status=403)
-            
+
+        inspection_status = my_status.objects.get(institute = institute)
+        inspection_status.total_inspected += 1
+        inspection_2.status = 1
+        inspection_status.save()
+        inspection_2.save()
+
         response = {
             'payload':{
                 'success':'true',

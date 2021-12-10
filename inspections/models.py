@@ -257,7 +257,7 @@ class Field_report(models.Model):
 
 def upload_to(instance,filename):
     id = uuid.uuid4()
-    user = instance.field_report.inspection
+    user = instance.field_report.inspection.assigned_to
     return 'posts/inspection_{user}/{id}.jpeg'.format(id=id,user=user)
 class Field_report_images(models.Model):
     image = models.ImageField(_("Image"),upload_to=upload_to,default = 'posts/default.jpg',blank = True)
