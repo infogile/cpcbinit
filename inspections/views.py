@@ -237,7 +237,27 @@ class myfieldReportView(APIView):
         _coordinates = _entrylocation["coordinates"]
         _fieldReport = dat["fieldReport"]
         # _images = _fieldReport["images"]    # maybe not required
-        # _poc = _fieldReport["poc"]
+        try:
+            _poc = _fieldReport["poc"]
+        except Exception as error:
+            print(error)
+        _fieldReportPOC = {}
+        ks_poc = ["name","number","email"]
+        for def_key in ks_poc:
+            _fieldReportPOC.setdefault(def_key,"NA")
+        try:
+            _fieldReportPOC["name"] = _poc["name"]
+        except Exception as error:
+            print(error)
+        try:    
+            _fieldReportPOC["number"] = _poc["number"]
+        except Exception as error:
+            print(error)
+        try:
+            _fieldReportPOC["email"] = _poc["email"]
+        except Exception as error:
+            print(error)
+        
         # _uos = _fieldReport["uos"]
         # _uosdetail = _fieldReport["uosdetail"]
         # _etpos = _fieldReport["etpos"]
@@ -354,7 +374,8 @@ class myfieldReportView(APIView):
                 semfer = _fieldReport["semfer"],
                 specificobservations = _fieldReport["specificobservations"],
                 inspection = inspection_2
-            )
+            )    
+
         except Exception as error:
             print(error,error.__class__)
             return Response({
@@ -363,6 +384,15 @@ class myfieldReportView(APIView):
                 'error' : str(error)
             }, status=403)
 
+        try:
+            field_report_pos = Field_report_poc.objects.create(
+                name = _fieldReportPOC["name"],
+                number = _fieldReportPOC["number"],
+                email = _fieldReportPOC["email"],
+                field_report = fieldReport
+            )
+        except Exception as error:
+            print(error)
         # fieldReport.save()
 
         try:
