@@ -19,7 +19,7 @@ class UserAdmin(admin.ModelAdmin):
 
 class InspectionAdmin(admin.ModelAdmin):
     list_display = ('assigned_to','factory')
-    list_filter = ('assigned_to',)
+    list_filter = ('assigned_to','status')
 
 class FactoryAdmin(admin.ModelAdmin):
     list_display = ('name','state','district','status')
@@ -31,10 +31,11 @@ class FieldReportImage(admin.ModelAdmin):
 
 class FieldImage(admin.TabularInline):
     model = Field_report_images
-    can_delete = False
+    can_delete = False 
+
 class FieldReportAdmin(admin.ModelAdmin):
     list_display = ('id','inspection',Field_report.assigned,)
-    list_filter = ('inspection',)
+    list_filter = ('inspection__assigned_to',)
     inlines = [FieldImage]
 
 class DistrictAdmin(admin.ModelAdmin):
