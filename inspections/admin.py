@@ -7,8 +7,10 @@ class InlineInstitue(admin.TabularInline):
     max_num = 1
 
 class AttendanceAdmin(admin.ModelAdmin):
-    list_display = ('lat','long','inspection','createdon','updatedon')
-    list_filter = ('inspection',)
+    list_display = ('lat','long','inspection','createdon','updatedon',)
+    readonly_fields = ('createdon','updatedon',)
+    list_filter = ('inspection__assigned_to',)
+    search_fields = ('inspection__factory__name',)
 
 admin.site.site_header = "CPCB Administration"
 admin.site.site_title = "CPCB Admin"
@@ -20,23 +22,32 @@ class UserAdmin(admin.ModelAdmin):
 class InspectionAdmin(admin.ModelAdmin):
     list_display = ('assigned_to','factory')
     list_filter = ('assigned_to','status')
+    search_fields = ('factory__name',)
 
 class FactoryAdmin(admin.ModelAdmin):
     list_display = ('name','state','district','status')
     list_filter = ('state','status','sector',)
+    search_fields = ('name',)
 
 class FieldReportImage(admin.ModelAdmin):
     list_display = ('field_report','image')
-    list_filter = ('field_report',)
+    list_filter = ('field_report__inspection__assigned_to',)
+    search_fields = ('field_report__inspection__factory__name',)
 
 class FieldImage(admin.TabularInline):
     model = Field_report_images
-    can_delete = False 
+    can_delete = False
+    extra = 0
+
+    def get_max_num(self, request, obj=None, **kwargs):
+        return Field_report_images.objects.filter(field_report=obj).count()
+
 
 class FieldReportAdmin(admin.ModelAdmin):
     list_display = ('id','inspection',Field_report.assigned,)
     list_filter = ('inspection__assigned_to',)
     inlines = [FieldImage]
+    search_fields = ('inspection__factory__name',)
 
 class DistrictAdmin(admin.ModelAdmin):
     list_display = ('short_code','name','state')
@@ -48,6 +59,8 @@ class InlineMystatus(admin.TabularInline):
 
 class FieldReportPoc(admin.ModelAdmin):
     list_display = ('name','field_report')
+    list_filter = ('field_report__inspection__assigned_to',)
+    search_fields = ('field_report__inspection__factory__name',)
 
 # class InlineInspection(admin.TabularInline):
 #     model = Inspection
