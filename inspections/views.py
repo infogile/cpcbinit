@@ -435,18 +435,25 @@ class myfieldReportView(APIView):
                 'message':'Image Upload Error : Failed to upload image(s).',
                 'error' : str(error)
             }, status=403)
-
-        inspection_status = my_status.objects.get(institute = institute)
-        if(Field_report.objects.filter(inspection=inspection_2).count() == 1):
-            inspection_status.total_inspected += 1
-        if(field_report.uos == 'non-operational'):
-            inspection_status.total_factory_closed += 1
-        inspection_2.status = 1
-        inspection_status.save()
-        inspection_2.save()
-        factory = Factories.objects.filter(id = inspection_2.factory.id).first()
-        factory.status = 1
-        factory.save()
+        try:
+            inspection_status = my_status.objects.get(institute = institute)
+            if(Field_report.objects.filter(inspection=inspection_2).count() == 1):
+                inspection_status.total_inspected += 1
+            if(field_report.uos == 'non-operational'):
+                inspection_status.total_factory_closed += 1
+            inspection_2.status = 1
+            inspection_status.save()
+            inspection_2.save()
+            factory = Factories.objects.filter(id = inspection_2.factory.id).first()
+            factory.status = 1
+            factory.save()
+        except Exception as error:
+            print('error at end',error)
+            return Response({
+                'status':'fail',
+                'message':'Database Error : Error occured while fetching.',
+                'error' : str(error)
+            }, status=502)
 
         response = {
             'payload':{
