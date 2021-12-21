@@ -445,7 +445,10 @@ class myfieldReportView(APIView):
             inspection_status.save()
             inspection_2.save()
             factory = Factories.objects.filter(id = inspection_2.factory.id).first()
-            factory.status = 1
+            if(field_report.uos == 'non-operational'):
+                factory.status = 4
+            else:
+                factory.status = 1
             factory.save()
         except Exception as error:
             print('error at end',error)
