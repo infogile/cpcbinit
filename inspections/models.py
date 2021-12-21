@@ -288,8 +288,12 @@ class Field_report_poc(models.Model):
                 self.id = Field_report_poc.objects.last().id +1 
         super().save(*args, **kwargs)
 
+def file_upload(instance, filename):
+    id = uuid.uuid4()
+    user = instance.inspection.id
+    return 'reports/inspectionid_{user}/{id}_{filename}'.format(id=id,user=user,filename=filename)
 class Inspection_report(models.Model):
-    file = models.FileField()
+    file = models.FileField(upload_to =file_upload)
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
     def __str__(self):
         return(str(self.inspection))
