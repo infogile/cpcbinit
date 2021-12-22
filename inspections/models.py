@@ -1,3 +1,4 @@
+from os import truncate
 from typing import Match
 from django.contrib.admin.decorators import action
 from django.db import models
@@ -16,6 +17,7 @@ class User(models.Model):
     username = models.CharField(max_length=255,unique=True)
     password = models.CharField(max_length=255)
     token = models.CharField(max_length=255,unique=True,default="None")
+    role = models.CharField(max_length=255,default="user")
 
     def __str__(self):
         return self.username    
@@ -288,9 +290,36 @@ class Field_report_poc(models.Model):
                 self.id = Field_report_poc.objects.last().id +1 
         super().save(*args, **kwargs)
 
+def file_upload(instance, filename):
+    id = uuid.uuid4()
+    user = instance.inspection.id
+    return 'reports/inspectionid_{user}/{id}_{filename}'.format(id=id,user=user,filename=filename)
+
 class Inspection_report(models.Model):
-    file = models.FileField()
+    # consent_copy = models.FileField(upload_to=file_upload,null=True,blank=True)
+    # inspection_report = models.FileField(upload_to=file_upload,null=True,blank=True)
+    # air_consent = models.FileField(upload_to=file_upload,null=True,blank=True)
+    # water_consent = models.FileField(upload_to=file_upload,null=True,blank=True)
+    # cgwa_noc = models.FileField(upload_to=file_upload,null=True,blank=True)
+    # hazardous_consent = models.FileField(upload_to=file_upload,null=True,blank=True)
+    
+    file = models.FileField(upload_to = file_upload, null = True , blank = True)
+    file_category = models.CharField(
+        max_length=100,
+        choices=[
+            ("consent_copy","Consent Copy"),
+            ("inspection_report","Inspection Report"),
+            ("air_consent","Air Consent"),
+            ("water_consent","Water Consent"),
+            ("cgwa_noc","CGWA NOC"),
+            ("hazardous_consent","Hazardous Consent")
+        ],
+        default = "None"
+    )
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
+    createdon = models.DateTimeField(auto_now=True)
+    updatedon = models.DateTimeField(auto_now=True)
+    
     def __str__(self):
         return(str(self.inspection))
     def save(self,*args, **kwargs):
@@ -347,19 +376,31 @@ class Action_report_files(models.Model):
         super().save(*args, **kwargs)
 
 class Inspection_report_data(models.Model):
-    ZLDnorms = models.CharField(max_length=20)
-    bod = models.CharField(max_length=20)
-    bodLoad = models.CharField(max_length=20)
-    cod = models.CharField(max_length=20)
-    codLoad = models.CharField(max_length=20)
+    teamNames = models.CharField(max_length=255, null = True , blank = True)
+    wasteWaterGeneration = models.CharField(max_length=255 , null = True , blank = True)
+    wasteWaterDischarge = models.CharField(max_length=255 , null = True , blank = True)
+    otherChars = models.CharField(max_length=255 , null = True , blank = True)
+    nonInstallationofOCEMS = models.CharField(max_length=255 , null = True , blank = True)
+    temperedOCEMS = models.CharField(max_length=255 , null = True , blank = True)
+    provision = models.CharField(max_length=255  , null = True , blank = True)
+    standardExceedance = models.CharField(max_length=255 , null = True , blank = True)
+    unauthorizedDisposal = models.CharField(max_length=255 , null = True , blank = True)
+    invalidCTO = models.CharField(max_length=255 , null = True , blank = True)
+    ZLDnorms = models.CharField(max_length=255 , null = True , blank = True)
+    bod = models.CharField(max_length=255 , null = True , blank = True)
+    bodLoad = models.CharField(max_length=255 , null = True , blank = True)
+    cod = models.CharField(max_length=255 , null = True , blank = True)
+    codLoad = models.CharField(max_length=255 , null = True , blank = True)
     complianceStatus = models.IntegerField()
     defunctETP = models.BooleanField()
     dilutionInETP = models.BooleanField()
     dissentBypassArrangement = models.BooleanField()
     dissentWaterDischarge = models.BooleanField()
     effluent = models.BooleanField()
-    finalRecommendation = models.CharField(max_length=20)
+    finalRecommendation = models.TextField()
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
+    createdon = models.DateTimeField(auto_now=True)
+    updatedon = models.DateTimeField(auto_now=True)
     def __str__(self):
         return(str(self.inspection))
     def save(self,*args, **kwargs):

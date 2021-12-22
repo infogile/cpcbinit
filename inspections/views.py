@@ -30,6 +30,7 @@ class loginView(APIView):
             }, status=403)
         if(check_password(password,user.password)):
             response['token'] = user.token
+            response['role'] = user.role
             response['success'] = 'true'
             return Response(response,status=200)
         else:
@@ -464,5 +465,6 @@ class myfieldReportView(APIView):
     
     def get(self, request):
         return Response("cool",status=200)
+        
 
     
