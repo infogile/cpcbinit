@@ -291,6 +291,7 @@ class Field_report_poc(models.Model):
 def file_upload(instance, filename):
     id = uuid.uuid4()
     user = instance.inspection.id
+    print('file name for inspection report: ',filename)
     return 'reports/inspectionid_{user}/{id}_{filename}'.format(id=id,user=user,filename=filename)
 class Inspection_report(models.Model):
     file = models.FileField(upload_to =file_upload)
