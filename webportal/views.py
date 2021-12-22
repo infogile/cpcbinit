@@ -9,7 +9,7 @@ from .serializers import *
 import json
 import os,uuid
 
-BASE_URL = "http://localhost:8000/media/"
+BASE_URL = "https://cloverbuddies.sgp1.digitaloceanspaces.com/cloverbuddies/media/"
 
 class loginView(APIView):
     def post(self,request):
