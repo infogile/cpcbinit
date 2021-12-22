@@ -65,6 +65,8 @@ class ActiveInspectionsView(APIView):
             for inspection in inspections:
                 new_inspection = {}
                 new_inspection["_id"] = inspection.id
+                # print("status : ", inspection.status)
+                new_inspection["status"] = inspection.status
                 new_inspection["factory"] = {
                     "unitcode" : inspection.factory.unitcode,
                     "name" : inspection.factory.name
