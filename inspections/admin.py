@@ -6,6 +6,24 @@ class InlineInstitue(admin.TabularInline):
     model = Institute
     max_num = 1
 
+class Inspection_report_tabular(admin.TabularInline):
+    model = Inspection_report
+    can_delete = False
+    extra = 0
+
+    def get_max_num(self, request, obj=None, **kwargs):
+        return Inspection_report.objects.filter(inspection=obj).count()
+
+class Inspection_report_dataTabular(admin.TabularInline):
+    model = Inspection_report_data
+    can_delete = False
+    extra = 0
+    fields = [('ZLDnorms','bod','bodLoad'),('cod','codLoad'),'complianceStatus',
+    ('defunctETP','dilutionInETP'),('dissentBypassArrangement','dissentWaterDischarge'),
+    'effluent','finalRecommendation']
+
+    def get_max_num(self, request, obj=None, **kwargs):
+        return Inspection_report_data.objects.filter(inspection=obj).count()
 class AttendanceAdmin(admin.ModelAdmin):
     list_display = ('lat','long','inspection','createdon','updatedon',)
     readonly_fields = ('createdon','updatedon',)
@@ -22,6 +40,7 @@ class UserAdmin(admin.ModelAdmin):
 class InspectionAdmin(admin.ModelAdmin):
     list_display = ('assigned_to','factory')
     list_filter = ('assigned_to','status')
+    inlines = [Inspection_report_tabular,Inspection_report_dataTabular]
     search_fields = ('factory__name',)
 
 class FactoryAdmin(admin.ModelAdmin):
@@ -71,6 +90,15 @@ class IntituteView(admin.ModelAdmin):
     list_filter = ('state',)
     inlines = [InlineMystatus]
 
+class Inspection_reportAdmin(admin.ModelAdmin):
+    list_display = ('id','inspection')
+    list_filter = ('inspection__assigned_to__institute',)
+    search_fields = ('inspection__factory__name',)
+class Inspection_report_dataAdmin(admin.ModelAdmin):
+    list_display = ('id','inspection',)
+    list_filter = ('inspection__assigned_to__institute',)
+    search_fields = ('inspection__factory__name',)
+
 admin.site.register(User, UserAdmin)
 
 
@@ -87,7 +115,7 @@ admin.site.register(Attendance,AttendanceAdmin)
 admin.site.register(Field_report,FieldReportAdmin)
 admin.site.register(Field_report_images,FieldReportImage)
 admin.site.register(Field_report_poc,FieldReportPoc)
-admin.site.register(Inspection_report)
+admin.site.register(Inspection_report,Inspection_reportAdmin)
 admin.site.register(Action)
 admin.site.register(Action_report)
 admin.site.register(Action_report_files)
