@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .serializers import *
+from datetime import datetime
 import json
 import os,uuid
 
@@ -134,7 +135,7 @@ class MyAllInspectionsAsView(APIView):
                 response.append(new_inspection)
                 
             # print(len(inspections))
-            print(response)
+            # print(response)
             return Response(response, status=200)
             
         except Exception as error:
@@ -389,6 +390,7 @@ class GetAllInspectionStateBoard(APIView):
         
         try:
             u = User.objects.get(token = tok)
+            non_zero_action_data_debug_dict = []
 
             inspections = Inspection.objects.all()
 
@@ -443,7 +445,20 @@ class GetAllInspectionStateBoard(APIView):
                 new_inspection["factory"]["basin"] = {
                     "name" : inspection.factory.basin.name.lower()
                 }
+                try:
+                    action_data = Action_report.objects.filter(inspection = inspection)
+                except Exception as error:
+                    action_data = []
+                    
+                non_zero_action_data_debug_dict.append(str(inspection))
+                
                 new_inspection["actions"] = []
+                for action in action_data:
+                    print("action : ", action, action.compliance_status)
+                    new_inspection["actions"].append({
+                        "complianceStatus" : action.compliance_status,
+                        "showcausenoticeStatus" : action.showcausenoticestatus
+                    })
                 new_inspection["factory"]["status"] = inspection.factory.status
                 new_inspection["status"] = inspection.status
                 new_inspection["assignedTo"] = {
@@ -452,6 +467,7 @@ class GetAllInspectionStateBoard(APIView):
                 response.append(new_inspection)
                 
             # print(len(inspections))
+            print("action non zero data : ", non_zero_action_data_debug_dict)
             print(response)
             return Response(response, status=200)
             
@@ -486,8 +502,28 @@ class GetInspectionReportView(APIView):
             response["finalRecommendation"] = inspection_report_data.finalRecommendation;
             response["complianceStatus"] = inspection_report_data.complianceStatus
 
-            # dummy data            
-            response["actions"] = 0
+            try:
+                action_data = Action_report.objects.filter(inspection = inspection)
+            except Exception as error:
+                action_data = []
+                    
+            # dummy data
+            response["actions"] = []   
+            action_report_files = Action_report_files.objects.filter(inspection = inspection)
+            action_report_files = [str(files.file) for files in action_report_files if str(files.file).strip() != '']
+            
+            if len(action_report_files) > 0:
+                print("Action Report Files" , action_report_files)
+            
+            for action in action_data:
+                print("action : ", action, action.compliance_status)
+                response["actions"].append({
+                    "complianceStatus" : action.compliance_status,
+                    "showcausenoticeStatus" : action.showcausenoticestatus,
+                    "date" : action.updated_at,
+                    "finalRecommendation" : action.finalrecommendation,
+                    "reports" : action_report_files
+                })
             response["report"] = {
                 "files" : []
             }
@@ -520,3 +556,159 @@ class GetInspectionReportView(APIView):
             print(error)
             return Response({}, 500)
         
+class MyCompletedInspectionsAsView(APIView):
+    def get(self,request):
+        response = []
+        # print("GET under mystatus")
+        tok = request.headers['Authorization']
+        print(tok)
+        if tok == None:
+            return Response({
+                'status':'fail',
+                'message':'Authentication Failed.'
+            }, status=403)
+        
+        try:
+            u = User.objects.get(token = tok)
+
+            inspections = Inspection.objects.all()
+
+            factory_fields = ['name','sector','unitcode','state','district','region','basin','status'];
+            print(inspections)
+            
+            d = {}
+            d[0] = 0
+            d[1] = 0
+            d[2] = 0
+            d[3] = 0
+            d[4] = 0
+            d[5] = 0
+
+            for inspection in inspections:
+                # print(inspection.status)
+                d[inspection.status] += 1
+                if inspection.status == 0:
+                    continue
+                
+                new_inspection = {}
+                
+                # field_report = Field_report.objects.filter(inspection = inspection)
+                # filed_report = field_report[0]
+                new_inspection["inspectionDate"] = ""
+                new_inspection["inspectionReportUploadDate"] = ""
+                
+                try:
+                    inspection_report = Inspection_report_data.objects.filter(inspection = inspection).first()
+                    new_inspection["inspectionReportUploadDate"] = inspection_report.updatedon
+                    print(dir(inspection_report))
+                except Exception as error:
+                    print(error)
+                    pass
+                
+                try:
+                    attendance = Attendance.objects.filter(inspection = inspection).first()
+                    new_inspection["inspectionDate"] = attendance.updatedon
+                except Exception as error:
+                    print(error)
+                    pass
+                    
+                # print("Inspection Report : ", inspection_report.first())
+                # inspection_report = inspection_report.first()
+                new_inspection["_id"] = inspection.id
+                
+                new_inspection["factory"] = {
+                    "region" : inspection.factory.region
+                }
+                
+                new_inspection["factory"]["name"] = inspection.factory.name
+                new_inspection["factory"]["sector"] = {
+                    "name" : inspection.factory.sector.name,
+                    "region" : inspection.factory.region
+                }
+                new_inspection["factory"]["unitcode"] = inspection.factory.unitcode
+                new_inspection["factory"]["state"] = {
+                    "short_name" : inspection.factory.state.short_name,
+                    "name" : inspection.factory.state.name
+                }
+                new_inspection["factory"]["district"] = {
+                    "short_code" : inspection.factory.district.short_code, 
+                    "name" : inspection.factory.district.name,
+                    "state" : {
+                        "short_name" : inspection.factory.state.short_name,
+                        "name" : inspection.factory.state.name
+                    }
+                }
+                new_inspection["factory"]["basin"] = {
+                    "name" : inspection.factory.basin.name.lower()
+                }
+                
+                try:
+                    action_data = Action_report.objects.filter(inspection = inspection)
+                except Exception as error:
+                    action_data = [""]
+                
+                # print("action report : ", action_data)
+                new_inspection["actions"] = [str(actions.inspection.factory.name) for actions in action_data]
+                
+                new_inspection["factory"]["status"] = inspection.factory.status
+                new_inspection["status"] = inspection.status
+                new_inspection["assignedTo"] = {
+                    "username" : inspection.assigned_to.institute
+                }
+                response.append(new_inspection)
+                
+            # print(len(inspections))
+            # print(response)
+            print(d)
+            return Response(response, status=200)
+            
+        except Exception as error:
+            print(error)
+            print("aaaaaaaaaa : " , error)
+            return Response({
+                'status':'fail',
+                'message':'Database Error : Error while fetching data.',
+                'error' : str(error)
+            }, status=403)
+        # return Response({'message' : 'app online : )'})
+        
+class ActionReportUploadView(APIView):
+    def post(self, request):
+        _id = int(request.data.getlist('inspectionId')[0])
+        print("The id is : ", _id)
+        images = request.data.getlist('actionreport')[0]
+        inspection = Inspection.objects.get(id = _id)
+        inspection_report = Action_report_files.objects.create(file = images , inspection = inspection)
+        return Response({
+            "fileLocation" : BASE_URL + str(inspection_report.file)
+        })
+        # return Response({}, 200)
+        
+class InspectionActionSubmitView(APIView):
+    def post(self, request):
+        tok = request.headers['Authorization']
+        print(tok)
+        if tok == None:
+            return Response({
+                'status':'fail',
+                'message':'Authentication Failed.'
+            }, status=403)
+        
+        print("putttttttttttttttttttttttttttttttttttttt")
+        print(request.data)
+        print("request data : ", request.data['inspectionId'])
+        _id = int(request.data['inspectionId'])
+        u = User.objects.get(token = tok)
+        inspection = Inspection.objects.get(id = _id)
+        request.data["date"] = request.data["date"].replace('(India Standard Time)', '').rstrip()
+        datetime_object = datetime.strptime(request.data["date"], '%a %b %d %Y %H:%M:%S %Z%z').strftime("%Y-%m-%d %H:%M:%S")
+        print(datetime_object)
+        action_report = Action_report.objects.create(
+            compliance_status = request.data["complianceStatus"],
+            showcausenoticestatus = request.data["showcausenoticeStatus"],
+            date = datetime_object,
+            finalrecommendation = request.data["finalRecommendation"],
+            inspection = inspection,
+            created_by = u
+        )
+        return Response({} , 200)
