@@ -78,7 +78,7 @@ class SPCB(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     def __str__(self):
-        return(self.state)
+        return(str(self.state))
     def save(self,*args, **kwargs):
         if not SPCB.objects.count():
             self.id = 1
@@ -330,30 +330,32 @@ class Inspection_report(models.Model):
                 self.id = Inspection_report.objects.last().id +1 
         super().save(*args, **kwargs)
 
-class Action(models.Model):
-    inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
-    updated_at = models.DateTimeField()
-    created_at = models.DateTimeField()
-    def __str__(self):
-        return(str(self.inspection))
-    def save(self,*args, **kwargs):
-        if not Action.objects.count():
-            self.id = 1
-        else:
-            if not self.pk:
-                self.id = Action.objects.last().id +1 
-        super().save(*args, **kwargs)
+# class Action(models.Model):
+#     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
+#     updated_at = models.DateTimeField()
+#     created_at = models.DateTimeField()
+#     def __str__(self):
+#         return(str(self.inspection))
+#     def save(self,*args, **kwargs):
+#         if not Action.objects.count():
+#             self.id = 1
+#         else:
+#             if not self.pk:
+#                 self.id = Action.objects.last().id +1 
+#         super().save(*args, **kwargs)
 
 class Action_report(models.Model):
     compliance_status = models.IntegerField()
     showcausenoticestatus = models.BooleanField()
-    date = models.DateField()
-    finalrecommendation = models.CharField(max_length=200)
-    created_by = models.ForeignKey(SPCB, on_delete=models.CASCADE)
+    date = models.DateTimeField()
+    finalrecommendation = models.TextField()
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField()
-    action = models.ForeignKey(Action, on_delete=models.CASCADE)
+    inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE, blank = True, null = True)
+    updated_at = models.DateTimeField(blank = True, null = True, auto_now = True)
+    created_at = models.DateTimeField(blank = True, null = True, auto_now_add=True)
     def __str__(self):
-        return(str(self.action))
+        return(str(self.inspection.factory.name))
     def save(self,*args, **kwargs):
         if not Action_report.objects.count():
             self.id = 1
@@ -364,9 +366,11 @@ class Action_report(models.Model):
 
 class Action_report_files(models.Model):
     file = models.FileField()
-    action_report = models.ForeignKey(Action_report, on_delete=models.CASCADE)
+    inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE, blank = True, null = True)
+    updated_at = models.DateTimeField(blank = True, null = True, auto_now = True)
+    created_at = models.DateTimeField(blank = True, null = True, auto_now_add=True)
     def __str__(self):
-        return(str(self.action_report))
+        return("(CREATED : " + str(self.created_at) + ") - " + str(self.inspection.factory.name))
     def save(self,*args, **kwargs):
         if not Action_report_files.objects.count():
             self.id = 1
@@ -399,7 +403,7 @@ class Inspection_report_data(models.Model):
     effluent = models.BooleanField()
     finalRecommendation = models.TextField()
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
-    createdon = models.DateTimeField(auto_now=True)
+    createdon = models.DateTimeField(auto_now_add=True)
     updatedon = models.DateTimeField(auto_now=True)
     def __str__(self):
         return(str(self.inspection))
