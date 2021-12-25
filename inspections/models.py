@@ -364,8 +364,13 @@ class Action_report(models.Model):
                 self.id = Action_report.objects.last().id +1 
         super().save(*args, **kwargs)
 
+def action_file_upload(instance, filename):
+    id = uuid.uuid4()
+    user = instance.inspection.id
+    return 'actionReports/inspectionid_{user}/{id}_{filename}'.format(id=id,user=user,filename=filename)
+
 class Action_report_files(models.Model):
-    file = models.FileField()
+    file = models.FileField(upload_to = action_file_upload)
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE, blank = True, null = True)
     updated_at = models.DateTimeField(blank = True, null = True, auto_now = True)
     created_at = models.DateTimeField(blank = True, null = True, auto_now_add=True)
