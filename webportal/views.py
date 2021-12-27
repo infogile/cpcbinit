@@ -412,7 +412,7 @@ class GetAllInspectionStateBoard(APIView):
             non_zero_action_data_debug_dict = []
 
             if(all_inpsection_cache['data'] != []):
-                if(len(all_inpsection_cache['data']) > 1800):
+                if(len(all_inpsection_cache['data']) > 2000):
                     all_inpsection_cache['data'] = []
                     all_inpsection_cache['changed'] = True
                 if(all_inpsection_cache['updatedon'] > datetime.now() - timedelta(minutes=5) 
