@@ -86,7 +86,7 @@ class SPCB(models.Model):
         else:
             if not self.pk:
                 self.id = SPCB.objects.last().id +1 
-        all_inpsection_cache['changed'] = True
+        #all_inpsection_cache['changed'] = True
         super().save(*args, **kwargs)
 
 class Headoffice(models.Model):
@@ -100,7 +100,7 @@ class Headoffice(models.Model):
         else:
             if not self.pk:
                 self.id = Headoffice.objects.last().id +1 
-        all_inpsection_cache['changed'] = True
+        #all_inpsection_cache['changed'] = True
         super().save(*args, **kwargs)
 
 
@@ -128,7 +128,7 @@ class Sector(models.Model):
         else:
             if not self.pk:
                 self.id = Sector.objects.last().id +1 
-        all_inpsection_cache['changed'] = True
+        #all_inpsection_cache['changed'] = True
         super().save(*args, **kwargs)
 
 
@@ -149,7 +149,7 @@ class Factories(models.Model):
         else:
             if not self.pk:
                 self.id = Factories.objects.last().id +1 
-        all_inpsection_cache['changed'] = True
+        #all_inpsection_cache['changed'] = True
         super().save(*args, **kwargs)
 
 class my_status(models.Model):
@@ -167,7 +167,7 @@ class my_status(models.Model):
         else:
             if not self.pk:
                 self.id = my_status.objects.last().id +1
-        all_inpsection_cache['changed'] = True 
+        #all_inpsection_cache['changed'] = True 
         super().save(*args, **kwargs)
 class Inspection(models.Model):
     status = models.IntegerField()
@@ -195,7 +195,7 @@ class Inspection(models.Model):
             
             status.total_assigned +=1
             status.save()
-        all_inpsection_cache['changed'] = True
+        #all_inpsection_cache['changed'] = True
         super(Inspection,self).save(*args, **kwargs)
 
 
@@ -213,7 +213,7 @@ class Attendance(models.Model):
         else:
             if not self.pk:
                 self.id = Attendance.objects.last().id +1
-        all_inpsection_cache['changed'] = True 
+        #all_inpsection_cache['changed'] = True 
         super().save(*args, **kwargs)
 
 
@@ -263,7 +263,7 @@ class Field_report(models.Model):
         else:
             if not self.pk:
                 self.id = Field_report.objects.last().id +1 
-        all_inpsection_cache['changed'] = True
+        #all_inpsection_cache['changed'] = True
         super().save(*args, **kwargs)
 
 def upload_to(instance,filename):
@@ -281,7 +281,7 @@ class Field_report_images(models.Model):
         else:
             if not self.pk:
                 self.id = Field_report_images.objects.last().id +1
-        all_inpsection_cache['changed'] = True 
+        #all_inpsection_cache['changed'] = True 
         super().save(*args, **kwargs)
 
 
@@ -298,7 +298,7 @@ class Field_report_poc(models.Model):
         else:
             if not self.pk:
                 self.id = Field_report_poc.objects.last().id +1 
-        all_inpsection_cache['changed'] = True
+        #all_inpsection_cache['changed'] = True
         super().save(*args, **kwargs)
 
 def file_upload(instance, filename):
@@ -339,7 +339,7 @@ class Inspection_report(models.Model):
         else:
             if not self.pk:
                 self.id = Inspection_report.objects.last().id +1
-        all_inpsection_cache['changed'] = True 
+        #all_inpsection_cache['changed'] = True 
         super().save(*args, **kwargs)
 
 # class Action(models.Model):
@@ -374,7 +374,7 @@ class Action_report(models.Model):
         else:
             if not self.pk:
                 self.id = Action_report.objects.last().id +1 
-        all_inpsection_cache['changed'] = True
+        #all_inpsection_cache['changed'] = True
         super().save(*args, **kwargs)
 
 def action_file_upload(instance, filename):
@@ -395,7 +395,7 @@ class Action_report_files(models.Model):
         else:
             if not self.pk:
                 self.id = Action_report_files.objects.last().id +1
-        all_inpsection_cache['changed'] = True 
+        #all_inpsection_cache['changed'] = True 
         super().save(*args, **kwargs)
 
 class Inspection_report_data(models.Model):
@@ -432,7 +432,7 @@ class Inspection_report_data(models.Model):
         else:
             if not self.pk:
                 self.id = Inspection_report_data.objects.last().id +1 
-        all_inpsection_cache['changed'] = True
+        #all_inpsection_cache['changed'] = True
         super().save(*args, **kwargs)
     
 
