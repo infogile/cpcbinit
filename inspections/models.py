@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import make_password, check_password
 import uuid
 from django.utils.translation import gettext_lazy as _
 import datetime
-from webportal.views import all_inpsection_cache
+# from webportal.views import all_inpsection_cache
 
 # Create your models here.
 
