@@ -501,7 +501,6 @@ class GetAllInspectionStateBoard(APIView):
                 response.append(new_inspection)
                 all_inpsection_cache['data'].append(new_inspection)
                 all_inpsection_cache['updatedon'] = datetime.now()
-                print("all_inpsection_cache : ",len(all_inpsection_cache['data']))
             
             all_inpsection_cache['updatedon'] = datetime.now()
             all_inpsection_cache['changed'] = False
