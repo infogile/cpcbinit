@@ -33,6 +33,16 @@ class loginView(APIView):
                 'error' : str(error)
             }, status=403)
         if(check_password(password,user.password)):
+            if(user.role == 'spcb_user'):
+                userState = SPCB.objects.filter(user=user).first()
+                if(userState == None):
+                    return Response({
+                        'status':'fail',
+                        'message':'User Not Registered'
+                    }, status=403)
+                else:
+                    response['state'] = userState.state.name
+                    response['state_shortName'] = userState.state.short_name
             response['token'] = user.token
             response['role'] = user.role
             response['user'] = username
@@ -406,15 +416,17 @@ class GetAllInspectionStateBoard(APIView):
                 
                 try:
                     inspection_report = Inspection_report_data.objects.filter(inspection = inspection).first()
-                    new_inspection["inspectionReportUploadDate"] = inspection_report.updatedon
-                    print(dir(inspection_report))
+                    if(inspection_report != None):
+                        new_inspection["inspectionReportUploadDate"] = inspection_report.updatedon
+                    #print(dir(inspection_report))
                 except Exception as error:
                     # print(error)
                     pass
                 
                 try:
                     attendance = Attendance.objects.filter(inspection = inspection).first()
-                    new_inspection["inspectionDate"] = attendance.updatedon
+                    if(attendance != None):
+                        new_inspection["inspectionDate"] = attendance.updatedon
                 except Exception as error:
                     # print(error)
                     pass
@@ -599,15 +611,17 @@ class MyCompletedInspectionsAsView(APIView):
                 
                 try:
                     inspection_report = Inspection_report_data.objects.filter(inspection = inspection).first()
-                    new_inspection["inspectionReportUploadDate"] = inspection_report.updatedon
-                    print(dir(inspection_report))
+                    if(inspection_report != None):
+                        new_inspection["inspectionReportUploadDate"] = inspection_report.updatedon
+                    # print(dir(inspection_report))
                 except Exception as error:
                     print(error)
                     pass
                 
                 try:
                     attendance = Attendance.objects.filter(inspection = inspection).first()
-                    new_inspection["inspectionDate"] = attendance.updatedon
+                    if(attendance != None):
+                        new_inspection["inspectionDate"] = attendance.updatedon
                 except Exception as error:
                     print(error)
                     pass
