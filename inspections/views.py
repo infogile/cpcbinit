@@ -7,6 +7,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from .serializers import *
 import json
 import os,uuid
+from webportal.views import all_inpsection_cache
 
 class loginView(APIView):
     def post(self,request):
@@ -57,6 +58,8 @@ class mystatusView(APIView):
             if(inspection_status == None):
                 inspection_status = my_status(institute = institute)
                 inspection_status.save()
+                all_inpsection_cache['changed'] = True
+
             total_assigned = inspection_status.total_assigned
             total_inspected = inspection_status.total_inspected
             total_closed = inspection_status.total_factory_closed
@@ -320,6 +323,7 @@ class myfieldReportView(APIView):
                 _coordinates[1] = 0
 
             attendance_instance = Attendance.objects.create(lat = _coordinates[0], long = _coordinates[1], inspection = inspection_2)
+            all_inpsection_cache['changed'] = True
         except Exception as error:
             print(error)
             return Response({
@@ -382,6 +386,8 @@ class myfieldReportView(APIView):
                 specificobservations = _fieldReport["specificobservations"],
                 inspection = inspection_2
             )    
+            all_inpsection_cache['changed'] = True
+
 
         except Exception as error:
             print(error,error.__class__)
@@ -398,6 +404,7 @@ class myfieldReportView(APIView):
                 email = _fieldReportPOC["email"],
                 field_report = fieldReport
             )
+            all_inpsection_cache['changed'] = True
         except Exception as error:
             print(error)
         # fieldReport.save()
@@ -427,8 +434,12 @@ class myfieldReportView(APIView):
                 if(type(image) == list):
                     for img in image:    
                         img_field = Field_report_images.objects.create(image = img, field_report = field_report)
+                        all_inpsection_cache['changed'] = True
+
                 else:
                     img_field = Field_report_images.objects.create(image = image, field_report = field_report)
+                    all_inpsection_cache['changed'] = True
+
             except Exception as error:
                 print(error)
                 return Response({
@@ -445,12 +456,14 @@ class myfieldReportView(APIView):
             inspection_2.status = 1
             inspection_status.save()
             inspection_2.save()
+            all_inpsection_cache['changed'] = True
             factory = Factories.objects.filter(id = inspection_2.factory.id).first()
             if(field_report.uos == 'non-operational'):
                 factory.status = 4
             else:
                 factory.status = 1
             factory.save()
+            all_inpsection_cache['changed'] = True
         except Exception as error:
             print('error at end',error)
             return Response({

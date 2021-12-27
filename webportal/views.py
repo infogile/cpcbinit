@@ -6,12 +6,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .serializers import *
-from datetime import datetime
+from datetime import datetime,timedelta
 import json
 import os,uuid
 
 BASE_URL = "https://cloverbuddies.sgp1.digitaloceanspaces.com/cloverbuddies/media/"
-
+all_inpsection_cache = {'data':[],'updatedon':None,'changed':False}
 class loginView(APIView):
     def post(self,request):
         response = {}
@@ -109,6 +109,7 @@ class MyAllInspectionsAsView(APIView):
             }, status=403)
         
         try:
+
             u = User.objects.get(token = tok)
             institute = Institute.objects.get(user = u)
             inspections = Inspection.objects.filter(assigned_to = institute)
@@ -163,9 +164,11 @@ class ConsentCopyUploadView(APIView):
         images = request.data.getlist('consentcopy')[0]
         inspection = Inspection.objects.get(id = _id)
         inspection_report = Inspection_report.objects.create(file = images , inspection = inspection , file_category = "consent_copy")
+        all_inpsection_cache['changed'] = True
         return Response({
             "fileLocation" : BASE_URL + str(inspection_report.file)
         })
+
 
 class InspectionReportUploadView(APIView):
     def post(self, request):
@@ -173,6 +176,7 @@ class InspectionReportUploadView(APIView):
         images = request.data.getlist('inspectionreport')[0]
         inspection = Inspection.objects.get(id = _id)
         inspection_report = Inspection_report.objects.create(file = images , inspection = inspection , file_category = "inspection_report")
+        all_inpsection_cache['changed'] = True
         return Response({
             "fileLocation" : BASE_URL + str(inspection_report.file)
         })
@@ -183,6 +187,7 @@ class AirConsentUploadAsView(APIView):
         images = request.data.getlist('airconsent')[0]
         inspection = Inspection.objects.get(id = _id)
         inspection_report = Inspection_report.objects.create(file = images , inspection = inspection , file_category = "air_consent")
+        all_inpsection_cache['changed'] = True
         return Response({
             "fileLocation" : BASE_URL + str(inspection_report.file)
         })
@@ -193,6 +198,7 @@ class WaterConsentUploadView(APIView):
         images = request.data.getlist('waterconsent')[0]
         inspection = Inspection.objects.get(id = _id)
         inspection_report = Inspection_report.objects.create(file = images , inspection = inspection , file_category = "water_consent")
+        all_inpsection_cache['changed'] = True
         return Response({
             "fileLocation" : BASE_URL + str(inspection_report.file)
         })
@@ -203,6 +209,7 @@ class cgwaNocConsentUploadAsView(APIView):
         images = request.data.getlist('cgwaNoc')[0]
         inspection = Inspection.objects.get(id = _id)
         inspection_report = Inspection_report.objects.create(file = images , inspection = inspection , file_category = "cgwa_noc")
+        all_inpsection_cache['changed'] = True
         return Response({
             "fileLocation" : BASE_URL + str(inspection_report.file)
         })
@@ -213,6 +220,7 @@ class HazardousConsentUploadAsView(APIView):
         images = request.data.getlist('hazardousconsent')[0]
         inspection = Inspection.objects.get(id = _id)
         inspection_report = Inspection_report.objects.create(file = images , inspection = inspection , file_category = "hazardous_consent")
+        all_inpsection_cache['changed'] = True
         return Response({
             "fileLocation" : BASE_URL + str(inspection_report.file)
         })
@@ -268,6 +276,7 @@ class FinalReportUploadAsView(APIView):
         inspection = Inspection.objects.get(id = request.data['inspectionId'])
         inspection.status = 2
         inspection.save()
+        all_inpsection_cache['changed'] = True
         
         new_inspection_data = Inspection_report_data.objects.create(
             teamNames = request.data['teamNames'],
@@ -295,6 +304,7 @@ class FinalReportUploadAsView(APIView):
             finalRecommendation = request.data['finalRecommendation'],
             inspection = inspection
         )
+        all_inpsection_cache['changed'] = True
         
         return Response({}, status = 200)
     
@@ -397,10 +407,19 @@ class GetAllInspectionStateBoard(APIView):
                 'status':'fail',
                 'message':'Authentication Failed.'
             }, status=403)
-        
         try:
             u = User.objects.get(token = tok)
             non_zero_action_data_debug_dict = []
+
+            if(all_inpsection_cache['data'] != []):
+                if(all_inpsection_cache['updatedon'] > datetime.now() - timedelta(minutes=5) 
+                and len( all_inpsection_cache['data']) > 1900 
+                and all_inpsection_cache['changed'] == False):
+                    print("cached")
+                    return Response(all_inpsection_cache['data'])
+            else:
+                all_inpsection_cache['data'] = []
+
 
             inspections = Inspection.objects.all()
 
@@ -477,8 +496,14 @@ class GetAllInspectionStateBoard(APIView):
                     "username" : inspection.assigned_to.institute
                 }
                 response.append(new_inspection)
+                all_inpsection_cache['data'].append(new_inspection)
+                all_inpsection_cache['updatedon'] = datetime.now()
+                print("all_inpsection_cache : ",len(all_inpsection_cache['data']))
+            
+            all_inpsection_cache['updatedon'] = datetime.now()
+            all_inpsection_cache['changed'] = False
                 
-            # print(len(inspections))
+            print(len(inspections))
             print("action non zero data : ", non_zero_action_data_debug_dict)
             print(response)
             return Response(response, status=200)
@@ -693,6 +718,7 @@ class ActionReportUploadView(APIView):
         images = request.data.getlist('actionreport')[0]
         inspection = Inspection.objects.get(id = _id)
         inspection_report = Action_report_files.objects.create(file = images , inspection = inspection)
+        all_inpsection_cache['changed'] = True
         return Response({
             "fileLocation" : BASE_URL + str(inspection_report.file)
         })
@@ -725,4 +751,5 @@ class InspectionActionSubmitView(APIView):
             inspection = inspection,
             created_by = u
         )
+        all_inpsection_cache['changed'] = True
         return Response({} , 200)
