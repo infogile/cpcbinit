@@ -257,6 +257,8 @@ class Field_report(models.Model):
         return(str(self.inspection))
     def assigned(self):
         return(str(self.inspection.assigned_to))
+    def unitcode(self):
+        return(str(self.inspection.factory.unitcode))
     def save(self,*args, **kwargs):
         if not Field_report.objects.count():
             self.id = 1
