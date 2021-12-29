@@ -396,6 +396,140 @@ class GetFieldReportView(APIView):
         
         return Response(response)
 
+class GetAllInspectionStateBoard(APIView):
+    def get(self,request):
+        response = []
+        # print("GET under mystatus")
+        tok = request.headers['Authorization']
+        print(tok)
+        if tok == None:
+            return Response({
+                'status':'fail',
+                'message':'Authentication Failed.'
+            }, status=403)
+        try:
+            u = User.objects.get(token = tok)
+            if u.role != 'headoffice_user':
+                return Response({
+                'status':'fail',
+                'message':'Authentication Failed.'
+                }, status=403)
+            non_zero_action_data_debug_dict = []
+
+            if(all_inpsection_cache['data'] != []):
+                if(len(all_inpsection_cache['data']) > 2000):
+                    all_inpsection_cache['data'] = []
+                    all_inpsection_cache['changed'] = True
+                if(all_inpsection_cache['updatedon'] > datetime.now() - timedelta(minutes=5) 
+                and len( all_inpsection_cache['data']) > 1970 
+                and all_inpsection_cache['changed'] == False):
+                    print("cached")
+                    return Response(all_inpsection_cache['data'])
+            else:
+                all_inpsection_cache['data'] = []
+
+
+            #inspections = Inspection.objects.all()
+            inspections = allinspection_response.objects.all()
+            factory_fields = ['name','sector','unitcode','state','district','region','basin','status'];
+
+            for inspection in inspections:
+                new_inspection = {}
+                
+                # field_report = Field_report.objects.filter(inspection = inspection)
+                # filed_report = field_report[0]
+                new_inspection["inspectionDate"] = ""
+                new_inspection["inspectionReportUploadDate"] = ""
+                
+                try:
+                    #inspection_report = Inspection_report_data.objects.filter(inspection = inspection).first()
+                    inspection_report = inspection.inspection_report_data
+                    if(inspection_report != None):
+                        new_inspection["inspectionReportUploadDate"] = inspection_report.updatedon
+                    #print(dir(inspection_report))
+                except Exception as error:
+                    print(error)
+                    pass
+                
+                try:
+                    #attendance = Attendance.objects.filter(inspection = inspection).first()
+                    attendance = inspection.attendance
+                    if(attendance != None):
+                        new_inspection["inspectionDate"] = attendance.updatedon
+                except Exception as error:
+                    print(error)
+                    pass
+                    
+                # print("Inspection Report : ", inspection_report.first())
+                # inspection_report = inspection_report.first()
+                new_inspection["_id"] = inspection.inspections.id
+                
+                new_inspection["factory"] = {}
+                
+                new_inspection["factory"]["name"] = inspection.inspections.factory.name
+                new_inspection["factory"]["sector"] = {
+                    "name" : inspection.inspections.factory.sector.name
+                }
+                new_inspection["factory"]["unitcode"] = inspection.inspections.factory.unitcode
+                new_inspection["factory"]["state"] = {
+                    "short_name" : inspection.inspections.factory.state.short_name,
+                    "name" : inspection.inspections.factory.state.name
+                }
+                new_inspection["factory"]["district"] = {
+                    "short_code" : inspection.inspections.factory.district.short_code, 
+                    "name" : inspection.inspections.factory.district.name,
+                    "state" : {
+                        "short_name" : inspection.inspections.factory.state.short_name,
+                        "name" : inspection.inspections.factory.state.name
+                    }
+                }
+                new_inspection["factory"]["basin"] = {
+                    "name" : inspection.inspections.factory.basin.name.lower()
+                }
+                try:
+                    # action_data = Action_report.objects.filter(inspection = inspection)
+                    action_data = inspection.action_report
+                except Exception as error:
+                    action_data = []
+                    
+                non_zero_action_data_debug_dict.append(str(inspection))
+                
+                new_inspection["actions"] = []
+                if(action_data != None):
+                    for action in action_data:
+                        print("action : ", action, action.compliance_status)
+                        new_inspection["actions"].append({
+                            "complianceStatus" : action.compliance_status,
+                            "showcausenoticeStatus" : action.showcausenoticestatus
+                        })
+                new_inspection["factory"]["status"] = inspection.inspections.factory.status
+                new_inspection["status"] = inspection.inspections.status
+                new_inspection["assignedTo"] = {
+                    "username" : inspection.inspections.assigned_to.institute
+                }
+                response.append(new_inspection)
+                all_inpsection_cache['data'].append(new_inspection)
+                all_inpsection_cache['updatedon'] = datetime.now()
+            
+            all_inpsection_cache['updatedon'] = datetime.now()
+            all_inpsection_cache['changed'] = False
+                
+            print(len(inspections))
+            # print("action non zero data : ", non_zero_action_data_debug_dict)
+            # print(response)
+            return Response(response, status=200)
+            
+        except Exception as error:
+            print(error)
+            print("aaaaaaaaaa : " , error)
+            return Response({
+                'status':'fail',
+                'message':'Database Error : Error while fetching data.',
+                'error' : str(error)
+            }, status=403)
+        # return Response({'message' : 'app online : )'})
+
+
 # class GetAllInspectionStateBoard(APIView):
 #     def get(self,request):
 #         response = []
@@ -424,8 +558,7 @@ class GetFieldReportView(APIView):
 #                 all_inpsection_cache['data'] = []
 
 
-#             #inspections = Inspection.objects.all()
-#             inspections = allinspection_response.all()
+#             inspections = Inspection.objects.all()
 
 #             factory_fields = ['name','sector','unitcode','state','district','region','basin','status'];
 
@@ -438,53 +571,50 @@ class GetFieldReportView(APIView):
 #                 new_inspection["inspectionReportUploadDate"] = ""
                 
 #                 try:
-#                     #inspection_report = Inspection_report_data.objects.filter(inspection = inspection).first()
-#                     inspection_report = inspection.inspection_report_data
+#                     inspection_report = Inspection_report_data.objects.filter(inspection = inspection).first()
 #                     if(inspection_report != None):
 #                         new_inspection["inspectionReportUploadDate"] = inspection_report.updatedon
 #                     #print(dir(inspection_report))
 #                 except Exception as error:
-#                     print(error)
+#                     # print(error)
 #                     pass
                 
 #                 try:
-#                     #attendance = Attendance.objects.filter(inspection = inspection).first()
-#                     attendance = inspection.attendance
+#                     attendance = Attendance.objects.filter(inspection = inspection).first()
 #                     if(attendance != None):
 #                         new_inspection["inspectionDate"] = attendance.updatedon
 #                 except Exception as error:
-#                     print(error)
+#                     # print(error)
 #                     pass
                     
 #                 # print("Inspection Report : ", inspection_report.first())
 #                 # inspection_report = inspection_report.first()
-#                 new_inspection["_id"] = inspection.inspections.id
+#                 new_inspection["_id"] = inspection.id
                 
 #                 new_inspection["factory"] = {}
                 
-#                 new_inspection["factory"]["name"] = inspection.inspections.factory.name
+#                 new_inspection["factory"]["name"] = inspection.factory.name
 #                 new_inspection["factory"]["sector"] = {
-#                     "name" : inspection.inspections.factory.sector.name
+#                     "name" : inspection.factory.sector.name
 #                 }
-#                 new_inspection["factory"]["unitcode"] = inspection.inspections.factory.unitcode
+#                 new_inspection["factory"]["unitcode"] = inspection.factory.unitcode
 #                 new_inspection["factory"]["state"] = {
-#                     "short_name" : inspection.inspections.factory.state.short_name,
-#                     "name" : inspection.inspections.factory.state.name
+#                     "short_name" : inspection.factory.state.short_name,
+#                     "name" : inspection.factory.state.name
 #                 }
 #                 new_inspection["factory"]["district"] = {
-#                     "short_code" : inspection.inspections.factory.district.short_code, 
-#                     "name" : inspection.inspections.factory.district.name,
+#                     "short_code" : inspection.factory.district.short_code, 
+#                     "name" : inspection.factory.district.name,
 #                     "state" : {
-#                         "short_name" : inspection.inspections.factory.state.short_name,
-#                         "name" : inspection.inspections.factory.state.name
+#                         "short_name" : inspection.factory.state.short_name,
+#                         "name" : inspection.factory.state.name
 #                     }
 #                 }
 #                 new_inspection["factory"]["basin"] = {
-#                     "name" : inspection.inspections.factory.basin.name.lower()
+#                     "name" : inspection.factory.basin.name.lower()
 #                 }
 #                 try:
-#                     # action_data = Action_report.objects.filter(inspection = inspection)
-#                     action_data = inspection.action_report
+#                     action_data = Action_report.objects.filter(inspection = inspection)
 #                 except Exception as error:
 #                     action_data = []
                     
@@ -523,131 +653,6 @@ class GetFieldReportView(APIView):
 #                 'error' : str(error)
 #             }, status=403)
 #         # return Response({'message' : 'app online : )'})
-
-
-class GetAllInspectionStateBoard(APIView):
-    def get(self,request):
-        response = []
-        # print("GET under mystatus")
-        tok = request.headers['Authorization']
-        print(tok)
-        if tok == None:
-            return Response({
-                'status':'fail',
-                'message':'Authentication Failed.'
-            }, status=403)
-        try:
-            u = User.objects.get(token = tok)
-            non_zero_action_data_debug_dict = []
-
-            if(all_inpsection_cache['data'] != []):
-                if(len(all_inpsection_cache['data']) > 2000):
-                    all_inpsection_cache['data'] = []
-                    all_inpsection_cache['changed'] = True
-                if(all_inpsection_cache['updatedon'] > datetime.now() - timedelta(minutes=5) 
-                and len( all_inpsection_cache['data']) > 1970 
-                and all_inpsection_cache['changed'] == False):
-                    print("cached")
-                    return Response(all_inpsection_cache['data'])
-            else:
-                all_inpsection_cache['data'] = []
-
-
-            inspections = Inspection.objects.all()
-
-            factory_fields = ['name','sector','unitcode','state','district','region','basin','status'];
-
-            for inspection in inspections:
-                new_inspection = {}
-                
-                # field_report = Field_report.objects.filter(inspection = inspection)
-                # filed_report = field_report[0]
-                new_inspection["inspectionDate"] = ""
-                new_inspection["inspectionReportUploadDate"] = ""
-                
-                try:
-                    inspection_report = Inspection_report_data.objects.filter(inspection = inspection).first()
-                    if(inspection_report != None):
-                        new_inspection["inspectionReportUploadDate"] = inspection_report.updatedon
-                    #print(dir(inspection_report))
-                except Exception as error:
-                    # print(error)
-                    pass
-                
-                try:
-                    attendance = Attendance.objects.filter(inspection = inspection).first()
-                    if(attendance != None):
-                        new_inspection["inspectionDate"] = attendance.updatedon
-                except Exception as error:
-                    # print(error)
-                    pass
-                    
-                # print("Inspection Report : ", inspection_report.first())
-                # inspection_report = inspection_report.first()
-                new_inspection["_id"] = inspection.id
-                
-                new_inspection["factory"] = {}
-                
-                new_inspection["factory"]["name"] = inspection.factory.name
-                new_inspection["factory"]["sector"] = {
-                    "name" : inspection.factory.sector.name
-                }
-                new_inspection["factory"]["unitcode"] = inspection.factory.unitcode
-                new_inspection["factory"]["state"] = {
-                    "short_name" : inspection.factory.state.short_name,
-                    "name" : inspection.factory.state.name
-                }
-                new_inspection["factory"]["district"] = {
-                    "short_code" : inspection.factory.district.short_code, 
-                    "name" : inspection.factory.district.name,
-                    "state" : {
-                        "short_name" : inspection.factory.state.short_name,
-                        "name" : inspection.factory.state.name
-                    }
-                }
-                new_inspection["factory"]["basin"] = {
-                    "name" : inspection.factory.basin.name.lower()
-                }
-                try:
-                    action_data = Action_report.objects.filter(inspection = inspection)
-                except Exception as error:
-                    action_data = []
-                    
-                non_zero_action_data_debug_dict.append(str(inspection))
-                
-                new_inspection["actions"] = []
-                for action in action_data:
-                    print("action : ", action, action.compliance_status)
-                    new_inspection["actions"].append({
-                        "complianceStatus" : action.compliance_status,
-                        "showcausenoticeStatus" : action.showcausenoticestatus
-                    })
-                new_inspection["factory"]["status"] = inspection.factory.status
-                new_inspection["status"] = inspection.status
-                new_inspection["assignedTo"] = {
-                    "username" : inspection.assigned_to.institute
-                }
-                response.append(new_inspection)
-                all_inpsection_cache['data'].append(new_inspection)
-                all_inpsection_cache['updatedon'] = datetime.now()
-            
-            all_inpsection_cache['updatedon'] = datetime.now()
-            all_inpsection_cache['changed'] = False
-                
-            print(len(inspections))
-            print("action non zero data : ", non_zero_action_data_debug_dict)
-            print(response)
-            return Response(response, status=200)
-            
-        except Exception as error:
-            print(error)
-            print("aaaaaaaaaa : " , error)
-            return Response({
-                'status':'fail',
-                'message':'Database Error : Error while fetching data.',
-                'error' : str(error)
-            }, status=403)
-        # return Response({'message' : 'app online : )'})
 
 class GetInspectionReportView(APIView):
     def get(self,request):
@@ -884,3 +889,23 @@ class InspectionActionSubmitView(APIView):
         )
         all_inpsection_cache['changed'] = True
         return Response({} , 200)
+
+
+# class filldata(APIView):
+#     def get(self, request):
+#         inspections = Inspection.objects.all()
+#         i = 0
+#         for inspection in inspections:
+#            inspectionReportdata = Inspection_report_data.objects.filter(inspection = inspection).first()
+#            attendance = Attendance.objects.filter(inspection = inspection).first()
+#            action_report = Action_report.objects.filter(inspection = inspection).first()
+#            allinspection_response.objects.create(inspections = inspection,
+#            inspection_report_data = inspectionReportdata,
+#            attendance = attendance,
+#            action_report = action_report
+#            )
+#            i = i + 1
+#            print("created ",i)
+
+#         return Response("Completed",status=200)
+
