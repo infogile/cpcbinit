@@ -99,6 +99,10 @@ class Inspection_report_dataAdmin(admin.ModelAdmin):
     list_filter = ('inspection__assigned_to__institute',)
     search_fields = ('inspection__factory__name',)
 
+class allinspectionResponse(admin.ModelAdmin):
+    list_display = ('id','inspections','action_report',)
+    list_filter = ('inspections__assigned_to__institute',)
+
 admin.site.register(User, UserAdmin)
 
 
@@ -121,3 +125,4 @@ admin.site.register(Action_report)
 admin.site.register(Action_report_files)
 admin.site.register(Inspection_report_data)
 admin.site.register(my_status)
+admin.site.register(allinspection_response,allinspectionResponse)

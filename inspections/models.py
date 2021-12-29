@@ -437,6 +437,23 @@ class Inspection_report_data(models.Model):
         #all_inpsection_cache['changed'] = True
         super().save(*args, **kwargs)
     
+class allinspection_response(models.Model):
+    inspections = models.ForeignKey(Inspection, on_delete=models.CASCADE)
+    inspection_report_data = models.ForeignKey(Inspection_report_data,blank=True,null=True, on_delete=models.CASCADE)
+    attendance = models.ForeignKey(Attendance,blank=True,null=True, on_delete=models.CASCADE)
+    action_report = models.ForeignKey(Action_report,blank=True,null=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return(str(self.inspections))
+    
+    def save(self,*args, **kwargs):
+        if not allinspection_response.objects.count():
+            self.id = 1
+        else:
+            if not self.pk:
+                self.id = allinspection_response.objects.last().id + 1
+        #all_inpsection_cache['changed'] = True 
+        super().save(*args, **kwargs)
 
 
 
