@@ -305,7 +305,7 @@ class FinalReportUploadAsView(APIView):
             inspection = inspection
         )
         try:
-            temp = allinspection_response.objects.filter(inpections = inspection).first()
+            temp = allinspection_response.objects.filter(inspections = inspection).first()
             temp.inspection_report_data = new_inspection_data
             temp.save()
         except Exception as error:

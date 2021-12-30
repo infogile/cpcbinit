@@ -326,7 +326,7 @@ class myfieldReportView(APIView):
 
             attendance_instance = Attendance.objects.create(lat = _coordinates[0], long = _coordinates[1], inspection = inspection_2)
             try:
-                temp = allinspection_response.objects.filter(inpections=inspection_2).first()
+                temp = allinspection_response.objects.filter(inspections=inspection_2).first()
                 temp.attendance = attendance_instance
                 temp.save()
             except Exception as error:
