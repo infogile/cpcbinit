@@ -9,7 +9,7 @@ from .serializers import *
 from datetime import datetime,timedelta, tzinfo
 import json
 import os,uuid
-from .var import data
+# from .var import data
 from django.utils import timezone
 
 BASE_URL = "https://cloverbuddies.sgp1.digitaloceanspaces.com/cloverbuddies/media/"
