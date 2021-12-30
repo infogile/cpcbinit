@@ -304,6 +304,13 @@ class FinalReportUploadAsView(APIView):
             finalRecommendation = request.data['finalRecommendation'],
             inspection = inspection
         )
+        try:
+            temp = allinspection_response.objects.filter(inpections = inspection).first()
+            temp.inspection_report_data = new_inspection_data
+            temp.save()
+        except Exception as error:
+            print(error,'at line 312 of webportal views')
+            pass
         all_inpsection_cache['changed'] = True
         
         return Response({}, status = 200)
@@ -888,6 +895,13 @@ class InspectionActionSubmitView(APIView):
             created_by = u
         )
         all_inpsection_cache['changed'] = True
+        try:
+            temp = allinspection_response.objects.filter(inspections = inspection).first()
+            temp.action_report = action_report
+            temp.save()
+        except Exception as error:
+            print(error)
+            pass
         return Response({} , 200)
 
 

@@ -1,4 +1,6 @@
 from django.shortcuts import render
+
+from inspections.admin import allinspectionResponse
 from .models import *
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.views import APIView
@@ -323,6 +325,13 @@ class myfieldReportView(APIView):
                 _coordinates[1] = 0
 
             attendance_instance = Attendance.objects.create(lat = _coordinates[0], long = _coordinates[1], inspection = inspection_2)
+            try:
+                temp = allinspection_response.objects.filter(inpections=inspection_2).first()
+                temp.attendance = attendance_instance
+                temp.save()
+            except Exception as error:
+                print(error,' at 333 of inspections view')
+                pass 
             all_inpsection_cache['changed'] = True
         except Exception as error:
             print(error)

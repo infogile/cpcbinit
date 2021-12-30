@@ -102,6 +102,7 @@ class Inspection_report_dataAdmin(admin.ModelAdmin):
 class allinspectionResponse(admin.ModelAdmin):
     list_display = ('id','inspections','action_report',)
     list_filter = ('inspections__assigned_to__institute',)
+    search_fields = ('inspections__factory__name',)
 
 admin.site.register(User, UserAdmin)
 
