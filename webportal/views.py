@@ -6,9 +6,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from .serializers import *
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta, tzinfo
 import json
 import os,uuid
+from .var import data
+from django.utils import timezone
 
 BASE_URL = "https://cloverbuddies.sgp1.digitaloceanspaces.com/cloverbuddies/media/"
 all_inpsection_cache = {'data':[],'updatedon':None,'changed':False}
@@ -426,11 +428,11 @@ class GetAllInspectionStateBoard(APIView):
             non_zero_action_data_debug_dict = []
 
             if(all_inpsection_cache['data'] != []):
-                if(len(all_inpsection_cache['data']) > 2000):
+                if(len(all_inpsection_cache['data']) > 2540):
                     all_inpsection_cache['data'] = []
                     all_inpsection_cache['changed'] = True
                 if(all_inpsection_cache['updatedon'] > datetime.now() - timedelta(minutes=5) 
-                and len( all_inpsection_cache['data']) > 1970 
+                and len( all_inpsection_cache['data']) > 2530 
                 and all_inpsection_cache['changed'] == False):
                     print("cached")
                     return Response(all_inpsection_cache['data'])
@@ -912,30 +914,100 @@ class InspectionActionSubmitView(APIView):
 
 # class filldata(APIView):
 #     def get(self, request):
-#         inspections = Inspection.objects.all()
-#         i = 0
-#         for inspection in inspections:
-#            inspectionReportdata = Inspection_report_data.objects.filter(inspection = inspection).first()
-#            attendance = Attendance.objects.filter(inspection = inspection).first()
-#            action_report = Action_report.objects.filter(inspection = inspection).first()
-#            temp = allinspection_response.objects.filter(inspections = inspection).first()
-#            updated = []
-#            check  = False
-#            if(inspectionReportdata != None and temp.attendance == None):
-#                 temp.inspection_report_data = inspectionReportdata
-#                 temp.save()
-#                 updated.append('inspection_report_data')
-#                 check = True
-#            if(action_report != None and temp.attendance == None):
-#                 temp.action_report = action_report
-#                 temp.save()
-#                 updated.append('action_report')
-#                 check = True
-#            id = temp.id
-#            i = i + 1
-#            if(check):
-#                print(f"updated {id} and ran {i} times")
-#            print("ON ",i)
+#         for i in data:
+#             if(int(i) <=60 ):
+#                 continue
 
+#             name = data[i]["Name & Address of Unit"]
+            
+#             sector = Sector.objects.filter(name=data[i]["Sector"]).first()
+#             if(sector == None):
+#                 sector = Sector.objects.create(name=data[i]["Sector"])
+
+#             unitcode = data[i]["Unit Code"]
+            
+#             state = State.objects.filter(name=data[i]["State"]).first()
+#             if(state == None):
+#                 temp = data[i]["State"]
+#                 temp = temp[:2].upper()
+#                 state = State.objects.create(name=data[i]["State"],short_name = temp)
+            
+#             district = District.objects.filter(name=data[i]["District "]).first()
+#             if(district == None):
+#                 temp = data[i]["District "]
+#                 temp = temp[:2].upper()
+#                 district = District.objects.create(name=data[i]["District "],short_code = temp, state = state)
+            
+#             basin = data[i]["Tributaries"]
+#             if 'Ganga' in basin:
+#                 basin = Basin.objects.get(name='Ganga')
+#             elif 'Yamuna' in basin:
+#                 basin = Basin.objects.get(name='Yamuna')
+#             elif 'yamuna' in basin:
+#                 basin = Basin.objects.get(name='Yamuna')
+#             elif 'Mahananda' in basin:
+#                 basin = Basin.objects.get(name='Ganga')
+#             elif 'ganga' in basin:
+#                 basin = Basin.objects.get(name='Ganga')
+#             else:
+#                 print("NO basin")
+#                 print(basin)
+#                 break
+
+#             region = data[i]["RO"]
+#             factory = Factories.objects.create(
+#                 name = name,
+#                 sector = sector,
+#                 unitcode = unitcode,
+#                 state = state,
+#                 district = district,
+#                 region = region,
+#                 basin = basin
+#             )
+#             print(f'id: {i} of {factory.id} completed')
+
+#         return Response("Completed",status=200)
+
+# class fillinspection(APIView):
+#     def get(self, request):
+#         for i in data:
+#             if(int(i) <= 286):
+#                 continue
+#             code = data[i]["Unit Code"]
+#             factory = Factories.objects.get(unitcode=code)
+#             if(factory == None):
+#                 print("Factory not found")
+#                 break
+#             else:
+#                 print("Factory found")
+#                 print(factory.id)
+#             assigned_to = data[i]["Updated TPA 2021 "]
+#             if(assigned_to == 'Jadavpur'):
+#                 assigned_to = Institute.objects.get(institute='Jadavpur University')
+#             else:    
+#                 assigned_to = Institute.objects.get(institute=assigned_to)
+#             if(assigned_to == None):
+#                 print("Assigned to not found")
+#                 break
+#             created_at = timezone.now()
+#             updated_at = timezone.now()
+#             mystatus = my_status.objects.filter(institute=assigned_to).first()
+#             if(mystatus == None):
+#                 mystatus = my_status.objects.create(institute=assigned_to)
+#             mystatus.total_assigned += 1
+#             mystatus.save()
+
+#             inspection = Inspection.objects.create(
+#                 status = 0,
+#                 factory = factory,
+#                 assigned_to = assigned_to,
+#                 created_at = created_at,
+#                 updated_at = updated_at,
+#             )
+            
+#             temp = allinspection_response.objects.create(inspections=inspection)
+
+#             print(f'{i} of {inspection.id} completed and {temp.id} for caching also done')
+        
 #         return Response("Completed",status=200)
 
