@@ -276,6 +276,8 @@ class FinalReportUploadAsView(APIView):
         inspection = Inspection.objects.get(id = request.data['inspectionId'])
         inspection.status = 2
         inspection.save()
+        inspection.factory.status = 2
+        inspection.factory.save()
         all_inpsection_cache['changed'] = True
         
         new_inspection_data = Inspection_report_data.objects.create(
@@ -883,6 +885,8 @@ class InspectionActionSubmitView(APIView):
         _id = int(request.data['inspectionId'])
         u = User.objects.get(token = tok)
         inspection = Inspection.objects.get(id = _id)
+        inspection.factory.status = 3
+        inspection.factory.save()
         request.data["date"] = request.data["date"].replace('(India Standard Time)', '').rstrip()
         datetime_object = datetime.strptime(request.data["date"], '%a %b %d %Y %H:%M:%S %Z%z').strftime("%Y-%m-%d %H:%M:%S")
         print(datetime_object)
@@ -899,6 +903,7 @@ class InspectionActionSubmitView(APIView):
             temp = allinspection_response.objects.filter(inspections = inspection).first()
             temp.action_report = action_report
             temp.save()
+            
         except Exception as error:
             print(error)
             pass
@@ -913,13 +918,24 @@ class InspectionActionSubmitView(APIView):
 #            inspectionReportdata = Inspection_report_data.objects.filter(inspection = inspection).first()
 #            attendance = Attendance.objects.filter(inspection = inspection).first()
 #            action_report = Action_report.objects.filter(inspection = inspection).first()
-#            allinspection_response.objects.create(inspections = inspection,
-#            inspection_report_data = inspectionReportdata,
-#            attendance = attendance,
-#            action_report = action_report
-#            )
+#            temp = allinspection_response.objects.filter(inspections = inspection).first()
+#            updated = []
+#            check  = False
+#            if(inspectionReportdata != None and temp.attendance == None):
+#                 temp.inspection_report_data = inspectionReportdata
+#                 temp.save()
+#                 updated.append('inspection_report_data')
+#                 check = True
+#            if(action_report != None and temp.attendance == None):
+#                 temp.action_report = action_report
+#                 temp.save()
+#                 updated.append('action_report')
+#                 check = True
+#            id = temp.id
 #            i = i + 1
-#            print("created ",i)
+#            if(check):
+#                print(f"updated {id} and ran {i} times")
+#            print("ON ",i)
 
 #         return Response("Completed",status=200)
 

@@ -19,5 +19,5 @@ urlpatterns = [
     path('inspection/getinspectionreport', GetInspectionReportView.as_view()),
     path('inspection/mycompletedinspections', MyCompletedInspectionsAsView.as_view()),
     path('inspection/actionreport', ActionReportUploadView.as_view()),
-    path('inspection/action/submit', InspectionActionSubmitView.as_view()),
+    path('inspection/action/submit', InspectionActionSubmitView.as_view())
 ]
