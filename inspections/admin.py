@@ -39,7 +39,7 @@ class UserAdmin(admin.ModelAdmin):
 
 class InspectionAdmin(admin.ModelAdmin):
     list_display = ('assigned_to','factory')
-    list_filter = ('assigned_to','status')
+    list_filter = ('assigned_to','status','factory__status',)
     inlines = [Inspection_report_tabular,Inspection_report_dataTabular]
     search_fields = ('factory__name',)
 
