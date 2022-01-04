@@ -64,7 +64,7 @@ class FieldImage(admin.TabularInline):
 
 class FieldReportAdmin(admin.ModelAdmin):
     list_display = ('id',Field_report.unitcode,'inspection',Field_report.assigned,)
-    list_filter = ('inspection__assigned_to',)
+    list_filter = ('inspection__assigned_to','inspection__factory__status')
     inlines = [FieldImage]
     search_fields = ('inspection__factory__name','inspection__factory__unitcode')
 
