@@ -458,12 +458,12 @@ class myfieldReportView(APIView):
             }, status=403)
         try:
             inspection_status = my_status.objects.get(institute = institute)
-            if(Field_report.objects.filter(inspection=inspection_2).count() == 1):
+            if(Field_report.objects.filter(inspection=inspection_2).count() >= 1):
                 inspection_status.total_inspected += 1
             if(field_report.uos == 'non-operational'):
                 inspection_status.total_factory_closed += 1
-            inspection_2.status = 1
             inspection_status.save()
+            inspection_2.status = 1
             inspection_2.save()
             all_inpsection_cache['changed'] = True
             factory = Factories.objects.filter(id = inspection_2.factory.id).first()
