@@ -38,15 +38,15 @@ class UserAdmin(admin.ModelAdmin):
     inlines = [InlineInstitue]
 
 class InspectionAdmin(admin.ModelAdmin):
-    list_display = ('assigned_to','factory')
+    list_display = ('assigned_to',Inspection.code,'factory')
     list_filter = ('assigned_to','status','factory__status',)
     inlines = [Inspection_report_tabular,Inspection_report_dataTabular]
-    search_fields = ('factory__name',)
+    search_fields = ('factory__name','factory__unitcode',)
 
 class FactoryAdmin(admin.ModelAdmin):
-    list_display = ('name','state','district','status')
+    list_display = ('unitcode','name','state','district','status')
     list_filter = ('state','status','sector',)
-    search_fields = ('name',)
+    search_fields = ('name','unitcode')
 
 class FieldReportImage(admin.ModelAdmin):
     list_display = ('field_report','image')
@@ -94,10 +94,12 @@ class Inspection_reportAdmin(admin.ModelAdmin):
     list_display = ('id','inspection')
     list_filter = ('inspection__assigned_to__institute',)
     search_fields = ('inspection__factory__name',)
+
+
 class Inspection_report_dataAdmin(admin.ModelAdmin):
-    list_display = ('id','inspection',)
+    list_display = ('id',Inspection_report_data.code,'inspection',)
     list_filter = ('inspection__assigned_to__institute',)
-    search_fields = ('inspection__factory__name',)
+    search_fields = ('inspection__factory__name','inspection__factory__unitcode',)
 
 class allinspectionResponse(admin.ModelAdmin):
     list_display = ('id','inspections','action_report',)
@@ -124,6 +126,6 @@ admin.site.register(Inspection_report,Inspection_reportAdmin)
 # admin.site.register(Action)
 admin.site.register(Action_report)
 admin.site.register(Action_report_files)
-admin.site.register(Inspection_report_data)
+admin.site.register(Inspection_report_data,Inspection_report_dataAdmin)
 admin.site.register(my_status)
 admin.site.register(allinspection_response,allinspectionResponse)

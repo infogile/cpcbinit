@@ -177,7 +177,8 @@ class Inspection(models.Model):
     updated_at = models.DateTimeField()
     def __str__(self):
         return(self.factory.name)
-    
+    def code(self):
+        return(self.factory.unitcode)
     def save(self, *args, **kwargs):
         if not Inspection.objects.count():
             self.id = 1
@@ -428,6 +429,8 @@ class Inspection_report_data(models.Model):
     updatedon = models.DateTimeField(auto_now=True)
     def __str__(self):
         return(str(self.inspection))
+    def code(self):
+        return(self.inspection.factory.unitcode)
     def save(self,*args, **kwargs):
         if not Inspection_report_data.objects.count():
             self.id = 1
