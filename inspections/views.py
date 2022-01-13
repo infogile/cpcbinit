@@ -340,7 +340,18 @@ class myfieldReportView(APIView):
                 'message':'Creation Error : Error while saving Attendance Instance',
                 'error' : str(error)
             }, status=403)
-        
+        #changes to commit tonight
+        # try:
+        #     if(Field_report.objects.filter(inspection=inspection_2).exists()):
+        #         raise Exception('Report already exists')
+        # except Exception as error:
+        #     if(error == 'Report already exists'):
+        #         return Response({
+        #             'status':'fail',
+        #             'message':'Report already exists',
+        #             'error' : str(error)
+        #         }, status=403)
+        #end of changes
         try:
             ks = ["uos" ,"uosdetail" ,"etpos",
             "etposdetail" ,"cpc" ,
@@ -477,7 +488,6 @@ class myfieldReportView(APIView):
                 return Response({
                 'status':'fail',
                 'message':'Report already submitted',
-                'error' : str(error)
             }, status=403)
         except Exception as error:
             print('error at end',error)
