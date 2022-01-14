@@ -498,8 +498,8 @@ class GetAllInspectionStateBoard(APIView):
                     "name" : inspection.inspections.factory.basin.name.lower()
                 }
                 try:
-                    # action_data = Action_report.objects.filter(inspection = inspection)
-                    action_data = inspection.action_report
+                    action_data = Action_report.objects.filter(inspection = inspection)
+                    #action_data = inspection.action_report
                 except Exception as error:
                     action_data = []
                     
