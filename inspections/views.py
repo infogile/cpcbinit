@@ -471,8 +471,12 @@ class myfieldReportView(APIView):
             inspection_status = my_status.objects.get(institute = institute)
             if(Field_report.objects.filter(inspection=inspection_2).count() == 1):
                 inspection_status.total_inspected += 1
+
                 if(field_report.uos == 'non-operational'):
                     inspection_status.total_factory_closed += 1
+                elif(field_report.uos == "N/A"):
+                    inspection_status.bypass += 1
+                
                 inspection_status.save()
                 inspection_2.status = 1
                 inspection_2.save()
