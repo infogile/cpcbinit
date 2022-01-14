@@ -51,7 +51,7 @@ class FactoryAdmin(admin.ModelAdmin):
 class FieldReportImage(admin.ModelAdmin):
     list_display = ('field_report','image')
     list_filter = ('field_report__inspection__assigned_to',)
-    search_fields = ('field_report__inspection__factory__name',)
+    search_fields = ('field_report__inspection__factory__name','field_report__inspection__factory__unitcode')
 
 class FieldImage(admin.TabularInline):
     model = Field_report_images
@@ -93,7 +93,7 @@ class IntituteView(admin.ModelAdmin):
 class Inspection_reportAdmin(admin.ModelAdmin):
     list_display = ('id','inspection')
     list_filter = ('inspection__assigned_to__institute',)
-    search_fields = ('inspection__factory__name',)
+    search_fields = ('inspection__factory__name','inspection__factory__unitcode')
 
 
 class Inspection_report_dataAdmin(admin.ModelAdmin):
