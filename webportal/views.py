@@ -440,10 +440,10 @@ class GetAllInspectionStateBoard(APIView):
                 all_inpsection_cache['data'] = []
 
 
-            #inspections = Inspection.objects.all()
-            inspections = allinspection_response.objects.all()
+            inspections = Inspection.objects.all().order_by('-updated_at')
+            # inspections = allinspection_response.objects.all().order_by('id')
             factory_fields = ['name','sector','unitcode','state','district','region','basin','status'];
-
+            iter = 0
             for inspection in inspections:
                 new_inspection = {}
                 
@@ -453,8 +453,8 @@ class GetAllInspectionStateBoard(APIView):
                 new_inspection["inspectionReportUploadDate"] = ""
                 
                 try:
-                    #inspection_report = Inspection_report_data.objects.filter(inspection = inspection).first()
-                    inspection_report = inspection.inspection_report_data
+                    inspection_report = Inspection_report_data.objects.filter(inspection = inspection).first()
+                    # inspection_report = inspection.inspection_report_data
                     if(inspection_report != None):
                         new_inspection["inspectionReportUploadDate"] = inspection_report.updatedon
                     #print(dir(inspection_report))
@@ -463,8 +463,8 @@ class GetAllInspectionStateBoard(APIView):
                     pass
                 
                 try:
-                    #attendance = Attendance.objects.filter(inspection = inspection).first()
-                    attendance = inspection.attendance
+                    attendance = Attendance.objects.filter(inspection = inspection).first()
+                    # attendance = inspection.attendance
                     if(attendance != None):
                         new_inspection["inspectionDate"] = attendance.updatedon
                 except Exception as error:
@@ -473,52 +473,55 @@ class GetAllInspectionStateBoard(APIView):
                     
                 # print("Inspection Report : ", inspection_report.first())
                 # inspection_report = inspection_report.first()
-                new_inspection["_id"] = inspection.inspections.id
+                new_inspection["_id"] = inspection.id
                 
                 new_inspection["factory"] = {}
                 
-                new_inspection["factory"]["name"] = inspection.inspections.factory.name
+                new_inspection["factory"]["name"] = inspection.factory.name
                 new_inspection["factory"]["sector"] = {
-                    "name" : inspection.inspections.factory.sector.name
+                    "name" : inspection.factory.sector.name
                 }
-                new_inspection["factory"]["unitcode"] = inspection.inspections.factory.unitcode
+                new_inspection["factory"]["unitcode"] = inspection.factory.unitcode
                 new_inspection["factory"]["state"] = {
-                    "short_name" : inspection.inspections.factory.state.short_name,
-                    "name" : inspection.inspections.factory.state.name
+                    "short_name" : inspection.factory.state.short_name,
+                    "name" : inspection.factory.state.name
                 }
                 new_inspection["factory"]["district"] = {
-                    "short_code" : inspection.inspections.factory.district.short_code, 
-                    "name" : inspection.inspections.factory.district.name,
+                    "short_code" : inspection.factory.district.short_code, 
+                    "name" : inspection.factory.district.name,
                     "state" : {
-                        "short_name" : inspection.inspections.factory.state.short_name,
-                        "name" : inspection.inspections.factory.state.name
+                        "short_name" : inspection.factory.state.short_name,
+                        "name" : inspection.factory.state.name
                     }
                 }
                 new_inspection["factory"]["basin"] = {
-                    "name" : inspection.inspections.factory.basin.name.lower()
+                    "name" : inspection.factory.basin.name.lower()
                 }
+                action_data = []
                 try:
                     action_data = Action_report.objects.filter(inspection = inspection)
                     #action_data = inspection.action_report
+                    # print(action_data)
                 except Exception as error:
                     action_data = []
                     
                 non_zero_action_data_debug_dict.append(str(inspection))
                 
                 new_inspection["actions"] = []
-                if(action_data != None):
+                if(action_data.count() > 0):
                     for action in action_data:
                         print("action : ", action, action.compliance_status)
                         new_inspection["actions"].append({
                             "complianceStatus" : action.compliance_status,
                             "showcausenoticeStatus" : action.showcausenoticestatus
                         })
-                new_inspection["factory"]["status"] = inspection.inspections.factory.status
-                new_inspection["status"] = inspection.inspections.status
+                new_inspection["factory"]["status"] = inspection.factory.status
+                new_inspection["status"] = inspection.status
                 new_inspection["assignedTo"] = {
-                    "username" : inspection.inspections.assigned_to.institute
+                    "username" : inspection.assigned_to.institute
                 }
                 response.append(new_inspection)
+    
                 all_inpsection_cache['data'].append(new_inspection)
                 all_inpsection_cache['updatedon'] = datetime.now()
             
@@ -889,6 +892,8 @@ class InspectionActionSubmitView(APIView):
         inspection = Inspection.objects.get(id = _id)
         inspection.factory.status = 3
         inspection.factory.save()
+        inspection.status = 3
+        inspection.save()
         request.data["date"] = request.data["date"].replace('(India Standard Time)', '').rstrip()
         datetime_object = datetime.strptime(request.data["date"], '%a %b %d %Y %H:%M:%S %Z%z').strftime("%Y-%m-%d %H:%M:%S")
         print(datetime_object)
@@ -1011,3 +1016,21 @@ class InspectionActionSubmitView(APIView):
         
 #         return Response("Completed",status=200)
 
+# class GetActionReports(APIView):
+#     def get(self, request):
+#         inspections = Inspection.objects.all()
+#         new_inspection= {}
+#         new_inspection["actions"] = []
+#         for inspection in inspections:
+#             # print("PARSED id: ",inspection.id)
+#             action_data = Action_report.objects.filter(inspection=inspection)
+#             if(action_data.count() == 0):
+#                 continue
+#             elif(action_data.count() > 0):
+#                 for action in action_data:
+#                     print("action : ",inspection.id, action, action.compliance_status)
+#                     inspection.status = 3
+#                     inspection.save()
+#                     new_inspection["actions"].append(inspection.factory.name)
+        
+#         return Response(new_inspection, status=200)

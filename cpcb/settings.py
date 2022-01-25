@@ -163,3 +163,23 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# LOGGING_CONFIG = None
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers':{
+#         'file':{
+#             'class':'logging.FileHandler',
+#             'filename':f'{BASE_DIR}/logs/django.log',
+#         }
+#     },
+#     'loggers':{
+#         'django':{
+#             'handlers':['file'],
+#             'level':'ERROR',
+#             'propogate': True,
+#         },
+#     },
+# }
