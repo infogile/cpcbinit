@@ -415,12 +415,16 @@ class GetAllInspectionStateBoard(APIView):
         # print("GET under mystatus")
         all_inspsection_cache_list = cache.get('all_inspsection_cache')
         if(all_inspsection_cache_list == None):
-            all_inspsection_cache_list = {'data':[],'updatedon':None,'changed':False}
+            all_inspsection_cache_list = {'data':[],'updatedon':None,'changed':False,'correct':False}
+            cache.set('all_inspsection_cache',all_inspsection_cache_list,5000)
+            all_inspsection_cache_list['changed'] = False
+        elif(all_inspsection_cache_list['updatedon'] < datetime.now() - timedelta(minutes=5)):
+            all_inspsection_cache_list = {'data':[],'updatedon':None,'changed':False,'correct':False}
             cache.set('all_inspsection_cache',all_inspsection_cache_list,5000)
             all_inspsection_cache_list['changed'] = False
 
         all_inspsection_cache_list = cache.get('all_inspsection_cache')
-        print(all_inspsection_cache_list,"cache length")
+        
         tok = request.headers['Authorization']
         print(tok)
         if tok == None:
@@ -437,18 +441,25 @@ class GetAllInspectionStateBoard(APIView):
                 }, status=403)
             non_zero_action_data_debug_dict = []
 
-            if(all_inspsection_cache_list['data'] != []):
-                if(len(all_inspsection_cache_list['data']) < 2540):
-                    all_inspsection_cache_list['data'] = []
-                    all_inspsection_cache_list['changed'] = True
-                if(all_inspsection_cache_list['updatedon'] > datetime.now() - timedelta(minutes=5)
-                and len( all_inspsection_cache_list['data']) > 2550 
-                and all_inspsection_cache_list['changed'] == False and 
-                len( all_inspsection_cache_list['data']) <= 3000):
-                    print("cached")
-                    return Response(all_inspsection_cache_list['data'])
+            if(all_inspsection_cache_list['correct'] == True and 
+            all_inspsection_cache_list['updatedon'] > datetime.now() - timedelta(minutes=5)):
+                return Response(all_inspsection_cache_list['data'])
             else:
                 all_inspsection_cache_list['data'] = []
+ 
+
+            # if(all_inspsection_cache_list['data'] != []):
+            #     if(len(all_inspsection_cache_list['data']) < 2540):
+            #         all_inspsection_cache_list['data'] = []
+            #         all_inspsection_cache_list['changed'] = True
+            #     if(all_inspsection_cache_list['updatedon'] > datetime.now() - timedelta(minutes=5)
+            #     and len( all_inspsection_cache_list['data']) > 2550 
+            #     and all_inspsection_cache_list['changed'] == False and 
+            #     len( all_inspsection_cache_list['data']) <= 3000):
+            #         print("cached")
+            #         return Response(all_inspsection_cache_list['data'])
+            # else:
+            #     all_inspsection_cache_list['data'] = []
 
 
             inspections = Inspection.objects.all()
@@ -544,6 +555,7 @@ class GetAllInspectionStateBoard(APIView):
             
             all_inspsection_cache_list['updatedon'] = datetime.now()
             all_inspsection_cache_list['changed'] = False
+            all_inspsection_cache_list['correct'] = True
                 
             print(len(inspections))
             # print("action non zero data : ", non_zero_action_data_debug_dict)
