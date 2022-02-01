@@ -2,3 +2,4 @@ media
 .env
 venv
 *var*
+tmp

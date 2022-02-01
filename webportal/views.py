@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .models import *
+from django.core.cache import cache
 from inspections.models import *
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.views import APIView
@@ -13,6 +14,7 @@ import os,uuid
 from django.utils import timezone
 
 BASE_URL = "https://cloverbuddies.sgp1.digitaloceanspaces.com/cloverbuddies/media/"
+# cache = get_cache('default')
 all_inpsection_cache = {'data':[],'updatedon':None,'changed':False}
 class loginView(APIView):
     def post(self,request):
@@ -411,6 +413,14 @@ class GetAllInspectionStateBoard(APIView):
     def get(self,request):
         response = []
         # print("GET under mystatus")
+        all_inspsection_cache_list = cache.get('all_inspsection_cache')
+        if(all_inspsection_cache_list == None):
+            all_inspsection_cache_list = {'data':[],'updatedon':None,'changed':False}
+            cache.set('all_inspsection_cache',all_inspsection_cache_list,5000)
+            all_inspsection_cache_list['changed'] = False
+
+        all_inspsection_cache_list = cache.get('all_inspsection_cache')
+        print(all_inspsection_cache_list,"cache length")
         tok = request.headers['Authorization']
         print(tok)
         if tok == None:
@@ -427,20 +437,24 @@ class GetAllInspectionStateBoard(APIView):
                 }, status=403)
             non_zero_action_data_debug_dict = []
 
-            if(all_inpsection_cache['data'] != []):
-                if(len(all_inpsection_cache['data']) > 2540):
-                    all_inpsection_cache['data'] = []
-                    all_inpsection_cache['changed'] = True
-                if(all_inpsection_cache['updatedon'] > datetime.now() - timedelta(minutes=5) 
-                and len( all_inpsection_cache['data']) > 2530 
-                and all_inpsection_cache['changed'] == False):
+            if(all_inspsection_cache_list['data'] != []):
+                if(len(all_inspsection_cache_list['data']) > 2540):
+                    all_inspsection_cache_list['data'] = []
+                    all_inspsection_cache_list['changed'] = True
+                if(all_inspsection_cache_list['updatedon'] > datetime.now() - timedelta(minutes=5)
+                and len( all_inspsection_cache_list['data']) > 2550 
+                and all_inspsection_cache_list['changed'] == False):
                     print("cached")
-                    return Response(all_inpsection_cache['data'])
+                    return Response(all_inspsection_cache_list['data'])
             else:
-                all_inpsection_cache['data'] = []
+                all_inspsection_cache_list['data'] = []
 
 
-            inspections = Inspection.objects.all().order_by('-updated_at')
+            inspections = Inspection.objects.all()
+            inspection_report_data_queryset = Inspection_report_data.objects.all()
+            attendance_queryset = Attendance.objects.all()
+            action_report_queryset = Action_report.objects.all()
+
             # inspections = allinspection_response.objects.all().order_by('id')
             factory_fields = ['name','sector','unitcode','state','district','region','basin','status'];
             iter = 0
@@ -453,7 +467,7 @@ class GetAllInspectionStateBoard(APIView):
                 new_inspection["inspectionReportUploadDate"] = ""
                 
                 try:
-                    inspection_report = Inspection_report_data.objects.filter(inspection = inspection).first()
+                    inspection_report = inspection_report_data_queryset.filter(inspection = inspection).first()
                     # inspection_report = inspection.inspection_report_data
                     if(inspection_report != None):
                         new_inspection["inspectionReportUploadDate"] = inspection_report.updatedon
@@ -463,7 +477,7 @@ class GetAllInspectionStateBoard(APIView):
                     pass
                 
                 try:
-                    attendance = Attendance.objects.filter(inspection = inspection).first()
+                    attendance = attendance_queryset.filter(inspection = inspection).first()
                     # attendance = inspection.attendance
                     if(attendance != None):
                         new_inspection["inspectionDate"] = attendance.updatedon
@@ -499,7 +513,7 @@ class GetAllInspectionStateBoard(APIView):
                 }
                 action_data = []
                 try:
-                    action_data = Action_report.objects.filter(inspection = inspection)
+                    action_data = action_report_queryset.filter(inspection = inspection)
                     #action_data = inspection.action_report
                     # print(action_data)
                 except Exception as error:
@@ -520,17 +534,20 @@ class GetAllInspectionStateBoard(APIView):
                 new_inspection["assignedTo"] = {
                     "username" : inspection.assigned_to.institute
                 }
+
                 response.append(new_inspection)
+                
     
-                all_inpsection_cache['data'].append(new_inspection)
-                all_inpsection_cache['updatedon'] = datetime.now()
+                all_inspsection_cache_list['data'].append(new_inspection)
+                all_inspsection_cache_list['updatedon'] = datetime.now()
             
-            all_inpsection_cache['updatedon'] = datetime.now()
-            all_inpsection_cache['changed'] = False
+            all_inspsection_cache_list['updatedon'] = datetime.now()
+            all_inspsection_cache_list['changed'] = False
                 
             print(len(inspections))
             # print("action non zero data : ", non_zero_action_data_debug_dict)
             # print(response)
+            cache.set('all_inspsection_cache',all_inspsection_cache_list,5000)
             return Response(response, status=200)
             
         except Exception as error:
