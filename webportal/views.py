@@ -418,10 +418,10 @@ class GetAllInspectionStateBoard(APIView):
             all_inspsection_cache_list = {'data':[],'updatedon':None,'changed':False,'correct':False}
             cache.set('all_inspsection_cache',all_inspsection_cache_list,5000)
             all_inspsection_cache_list['changed'] = False
-        elif(all_inspsection_cache_list['updatedon'] < datetime.now() - timedelta(minutes=5)):
-            all_inspsection_cache_list = {'data':[],'updatedon':None,'changed':False,'correct':False}
-            cache.set('all_inspsection_cache',all_inspsection_cache_list,5000)
-            all_inspsection_cache_list['changed'] = False
+        # elif(all_inspsection_cache_list['updatedon'] < datetime.now() - timedelta(minutes=5)):
+        #     all_inspsection_cache_list = {'data':[],'updatedon':None,'changed':False,'correct':False}
+        #     cache.set('all_inspsection_cache',all_inspsection_cache_list,5000)
+        #     all_inspsection_cache_list['changed'] = False
 
         all_inspsection_cache_list = cache.get('all_inspsection_cache')
         
