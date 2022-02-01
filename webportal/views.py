@@ -443,7 +443,8 @@ class GetAllInspectionStateBoard(APIView):
                     all_inspsection_cache_list['changed'] = True
                 if(all_inspsection_cache_list['updatedon'] > datetime.now() - timedelta(minutes=5)
                 and len( all_inspsection_cache_list['data']) > 2550 
-                and all_inspsection_cache_list['changed'] == False):
+                and all_inspsection_cache_list['changed'] == False and 
+                len( all_inspsection_cache_list['data']) <= 3000):
                     print("cached")
                     return Response(all_inspsection_cache_list['data'])
             else:
