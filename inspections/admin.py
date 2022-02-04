@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.db.models import fields
 from .models import *
+from .AdminFilters import SPCB_user_filter
 # Register your models here.
 class InlineInstitue(admin.TabularInline):
     model = Institute
@@ -40,7 +41,7 @@ class UserAdmin(admin.ModelAdmin):
 class InspectionAdmin(admin.ModelAdmin):
     list_display = ('assigned_to',Inspection.code,'factory')
     list_filter = ('assigned_to','status','factory__status',)
-    inlines = [Inspection_report_tabular,Inspection_report_dataTabular]
+    inlines = [Inspection_report_tabular,Inspection_report_dataTabular,]
     search_fields = ('factory__name','factory__unitcode',)
 
 class FactoryAdmin(admin.ModelAdmin):
@@ -106,6 +107,18 @@ class allinspectionResponse(admin.ModelAdmin):
     list_filter = ('inspections__assigned_to__institute',)
     search_fields = ('inspections__factory__name',)
 
+class ActionReportFiles(admin.ModelAdmin):
+    classes=('wide', 'extrapretty')
+    list_display = (Action_report_files.unitcode,'inspection')
+    list_filter = ('inspection__assigned_to__institute',)
+    search_fields = ('inspection__factory__name','inspection__factory__unitcode',)
+
+class ActionReportView(admin.ModelAdmin):
+    classes=('wide', 'extrapretty')
+    list_display = (Action_report.unitcode,'inspection','created_by',)
+    list_filter = (SPCB_user_filter,'showcausenoticestatus','inspection__assigned_to__institute')
+    search_fields = ('inspection__factory__name','inspection__factory__unitcode',)
+
 admin.site.register(User, UserAdmin)
 
 
@@ -124,8 +137,8 @@ admin.site.register(Field_report_images,FieldReportImage)
 admin.site.register(Field_report_poc,FieldReportPoc)
 admin.site.register(Inspection_report,Inspection_reportAdmin)
 # admin.site.register(Action)
-admin.site.register(Action_report)
-admin.site.register(Action_report_files)
+admin.site.register(Action_report,ActionReportView)
+admin.site.register(Action_report_files,ActionReportFiles)
 admin.site.register(Inspection_report_data,Inspection_report_dataAdmin)
 admin.site.register(my_status)
 admin.site.register(allinspection_response,allinspectionResponse)

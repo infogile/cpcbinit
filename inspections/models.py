@@ -379,6 +379,8 @@ class Action_report(models.Model):
                 self.id = Action_report.objects.last().id +1 
         #all_inpsection_cache['changed'] = True
         super().save(*args, **kwargs)
+    def unitcode(self):
+        return(self.inspection.factory.unitcode)
 
 def action_file_upload(instance, filename):
     id = uuid.uuid4()
@@ -400,6 +402,8 @@ class Action_report_files(models.Model):
                 self.id = Action_report_files.objects.last().id +1
         #all_inpsection_cache['changed'] = True 
         super().save(*args, **kwargs)
+    def unitcode(self):
+        return(self.inspection.factory.unitcode)
 
 class Inspection_report_data(models.Model):
     teamNames = models.CharField(max_length=255, null = True , blank = True)
