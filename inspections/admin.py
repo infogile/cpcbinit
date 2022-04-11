@@ -116,7 +116,7 @@ class ActionReportFiles(admin.ModelAdmin):
 class ActionReportView(admin.ModelAdmin):
     classes=('wide', 'extrapretty')
     list_display = (Action_report.unitcode,'inspection','created_by',)
-    list_filter = (SPCB_user_filter,'showcausenoticestatus','inspection__assigned_to__institute')
+    list_filter = (SPCB_user_filter,'showcausenoticestatus','inspection__assigned_to__institute','compliance_status')
     search_fields = ('inspection__factory__name','inspection__factory__unitcode',)
 
 admin.site.register(User, UserAdmin)
