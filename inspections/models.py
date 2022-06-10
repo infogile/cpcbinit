@@ -427,7 +427,7 @@ class Inspection_report_data(models.Model):
     dissentBypassArrangement = models.BooleanField()
     dissentWaterDischarge = models.BooleanField()
     effluent = models.BooleanField()
-    finalRecommendation = models.TextField()
+    finalRecommendation = models.TextField(null=True, blank = True)
     inspection = models.ForeignKey(Inspection, on_delete=models.CASCADE)
     createdon = models.DateTimeField(auto_now_add=True)
     updatedon = models.DateTimeField(auto_now=True)
